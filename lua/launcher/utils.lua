@@ -118,13 +118,20 @@ end
 
 function M.show_command_picker(entry)
     local command_entries = {}
+
     for name, cmd in pairs(entry.commands) do
+        local computed_command
+        if cmd.pass_path then
+            computed_command = string.format('%s "%s"', cmd.command, entry.file)
+        else
+            computed_command = cmd.command
+        end
+
         table.insert(command_entries, {
             display = string.format("%s -> %s", name, cmd.command),
             name = name,
-            command = cmd,
+            computed_command = computed_command,
             file = entry.file,
-            pass_path = cmd.pass_path,
         })
     end
 
@@ -136,24 +143,14 @@ function M.show_command_picker(entry)
         end,
         function(selected)
             if selected then
-                local cmd
-
-                if selected.pass_path then
-                    cmd = string.format("%s \"%s\"", selected.command.command, selected.file)
-                else
-                    cmd = selected.command.command
-                end
-
-                -- Toggleterm
                 local terminal = require("toggleterm.terminal").Terminal
                 local my_term = terminal:new({
-                    cmd = cmd,
+                    cmd = selected.computed_command,
                     hidden = true,
                     direction = "horizontal",
                     close_on_exit = false
                 })
                 my_term:open()
-                -- my_term:toggle()
             end
         end
     )
