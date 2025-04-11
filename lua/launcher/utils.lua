@@ -1,4 +1,5 @@
 local picker = require("snacks.picker")
+
 local M = {}
 
 local function get_files()
@@ -95,28 +96,7 @@ local function open_picker(prompt, items, format_item, on_select)
     }, on_select)
 end
 
-function M.show_file_picker()
-    local files = get_files()
-    local handlers = get_language_handlers()
-    local relevant_files = get_relevant_files(files, handlers)
-    local cross_ref = get_cross_reference(relevant_files, handlers)
-    local entries = build_picker_entries(cross_ref)
-
-    open_picker(
-        "Pick File",
-        entries,
-        function(item)
-            return item.display
-        end,
-        function(selected)
-            if selected then
-                M.show_command_picker(selected)
-            end
-        end
-    )
-end
-
-function M.show_command_picker(entry)
+local function show_command_picker(entry)
     local command_entries = {}
 
     for name, cmd in pairs(entry.commands) do
@@ -156,8 +136,29 @@ function M.show_command_picker(entry)
     )
 end
 
+local function show_file_picker()
+    local files = get_files()
+    local handlers = get_language_handlers()
+    local relevant_files = get_relevant_files(files, handlers)
+    local cross_ref = get_cross_reference(relevant_files, handlers)
+    local entries = build_picker_entries(cross_ref)
+
+    open_picker(
+        "Pick File",
+        entries,
+        function(item)
+            return item.display
+        end,
+        function(selected)
+            if selected then
+                show_command_picker(selected)
+            end
+        end
+    )
+end
+
 function M.run()
-    M.show_file_picker()
+    show_file_picker()
 end
 
 return M
