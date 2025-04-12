@@ -2,6 +2,17 @@ local picker = require("snacks.picker")
 
 local M = {}
 
+local function execute(selected)
+    local terminal = require("toggleterm.terminal").Terminal
+    local my_term = terminal:new({
+        cmd = selected.computed_command,
+        hidden = true,
+        direction = "horizontal",
+        close_on_exit = false
+    })
+    my_term:open()
+end
+
 local function get_files()
     return require("plenary.scandir").scan_dir(".", {
         hidden = true,
@@ -104,6 +115,15 @@ local function show_command_picker(entry)
     local command_entries = {}
 
     for name, cmd in pairs(entry.commands) do
+        if cmd.file_name then
+            local filename = entry.file:match("^.+/(.+)$") or entry.file
+            local match_name = filename:match("(.+)%..+$") or filename
+
+            if cmd.file_name ~= match_name then
+                goto continue
+            end
+        end
+
         local computed_command
         if cmd.pass_path then
             computed_command = string.format('%s "%s"', cmd.command, entry.file)
@@ -124,6 +144,8 @@ local function show_command_picker(entry)
             computed_command = computed_command,
             file = entry.file,
         })
+
+        ::continue::
     end
 
     open_picker(
@@ -134,14 +156,7 @@ local function show_command_picker(entry)
         end,
         function(selected)
             if selected then
-                local terminal = require("toggleterm.terminal").Terminal
-                local my_term = terminal:new({
-                    cmd = selected.computed_command,
-                    hidden = true,
-                    direction = "horizontal",
-                    close_on_exit = false
-                })
-                my_term:open()
+                execute(selected)
             end
         end
     )
