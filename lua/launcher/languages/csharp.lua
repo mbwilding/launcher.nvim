@@ -20,11 +20,9 @@ M.handlers = {
             },
             watch = {
                 command = "dotnet watch",
-                pass_path = false,
             },
             ["watch-non-interactive"] = {
                 command = "dotnet watch --non-interactive",
-                pass_path = false,
             },
         },
     },

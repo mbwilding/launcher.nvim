@@ -109,6 +109,15 @@ local function show_command_picker(entry)
             computed_command = cmd.command
         end
 
+        if cmd.set_cwd then
+            local dir = entry.file:match("(.*/)")
+            if dir then
+                computed_command = string.format("cd %s && %s", dir, computed_command)
+            end
+        end
+
+        print(computed_command)
+
         table.insert(command_entries, {
             display = name,
             name = name,

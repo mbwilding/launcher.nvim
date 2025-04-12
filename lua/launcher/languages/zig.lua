@@ -8,11 +8,11 @@ M.handlers = {
         commands = {
             run = {
                 command = "zig build run",
-                pass_path = false,
+                set_cwd = true,
             },
             build = {
                 command = "zig build",
-                pass_path = false,
+                set_cwd = true,
             },
         },
     },
