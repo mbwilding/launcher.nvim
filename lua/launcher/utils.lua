@@ -7,6 +7,7 @@ local function get_files()
         hidden = true,
         add_dirs = false,
         silent = true,
+        respect_gitignore = true,
     })
 end
 
