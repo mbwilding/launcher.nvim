@@ -4,7 +4,7 @@ local M = {}
 
 local function get_files()
     return require("plenary.scandir").scan_dir(".", {
-        hidden = false,
+        hidden = true,
         add_dirs = false,
         silent = true,
     })
