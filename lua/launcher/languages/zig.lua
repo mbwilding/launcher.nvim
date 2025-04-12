@@ -7,8 +7,8 @@ M.handlers = {
         extension = "zig",
         commands = {
             run = {
-                command = "zig build run",
-                set_cwd = true,
+                command = "zig run",
+                pass_path = true,
             },
             build = {
                 command = "zig build",
