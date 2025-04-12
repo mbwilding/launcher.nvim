@@ -138,7 +138,7 @@ local function show_command_picker(entry)
     )
 end
 
-local function show_file_picker()
+function M.show_file_picker()
     local files = get_files()
     local handlers = get_language_handlers()
     local relevant_files = get_relevant_files(files, handlers)
@@ -157,10 +157,6 @@ local function show_file_picker()
             end
         end
     )
-end
-
-function M.run()
-    show_file_picker()
 end
 
 return M
