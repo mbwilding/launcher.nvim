@@ -76,9 +76,11 @@ local function build_picker_entries(cross_ref)
     local entries = {}
     for ext, data in pairs(cross_ref) do
         for _, file in ipairs(data.files) do
+            local file_filtered = file:gsub("^%./", "")
             local entry = {
-                display = string.format("%s %s", data.language, file),
+                display = string.format("%s %s", data.language, file_filtered),
                 file = file,
+                file_filtered = file_filtered,
                 extension = ext,
                 language = data.language,
                 commands = data.commands
@@ -108,7 +110,7 @@ local function show_command_picker(entry)
         end
 
         table.insert(command_entries, {
-            display = string.format("%s -> %s", name, cmd.command),
+            display = name,
             name = name,
             computed_command = computed_command,
             file = entry.file,
@@ -116,7 +118,7 @@ local function show_command_picker(entry)
     end
 
     open_picker(
-        string.format("Pick Command for %s", entry.file),
+        string.format("Pick Command for %s", entry.file_filtered),
         command_entries,
         function(item)
             return item.display
