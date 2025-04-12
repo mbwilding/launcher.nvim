@@ -45,6 +45,7 @@ end
 
 local function get_cross_reference(files, handlers)
     local cross_reference = {}
+
     -- Merge commands and language info per extension
     for lang, handler_list in pairs(handlers) do
         for _, handler in ipairs(handler_list) do
@@ -116,8 +117,6 @@ local function show_command_picker(entry)
                 computed_command = string.format("cd %s && %s", dir, computed_command)
             end
         end
-
-        print(computed_command)
 
         table.insert(command_entries, {
             display = name,
