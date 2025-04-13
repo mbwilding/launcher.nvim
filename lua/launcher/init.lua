@@ -157,7 +157,7 @@ local function select_command(relative_file_path, definitions)
                             cwd = vim.fn.getcwd() .. "/" .. (relative_file_path:match("^(.*)/") or "")
                             formatted_command = command
                         else
-                            formatted_command = command .. '"' .. relative_file_path .. '"'
+                            formatted_command = command .. ' "' .. relative_file_path .. '"'
                         end
 
                         table.insert(command_entries, {
