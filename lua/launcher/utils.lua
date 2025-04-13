@@ -1,5 +1,3 @@
-local picker = require("snacks.picker")
-
 local M = {}
 
 local function execute(selected)
@@ -105,7 +103,7 @@ local function build_picker_entries(cross_ref)
 end
 
 local function open_picker(prompt, items, format_item, on_select)
-    picker.select(items, {
+    Snacks.picker.select(items, {
         prompt = prompt,
         format_item = format_item,
     }, on_select)
