@@ -1,13 +1,13 @@
 local M = {}
 
-M.language = " "
+M.icon = " "
 
 M.handlers = {
     {
-        extension = "fish",
+        extensions = { "sh" },
         commands = {
             run = {
-                command = "fish",
+                command = "bash",
                 pass_path = true,
             },
         },

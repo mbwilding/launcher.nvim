@@ -1,21 +1,25 @@
 local M = {}
 
-M.language = " "
+local icon = " "
+local ft = "zig"
 
-M.handlers = {
+M.definitions = {
     {
-        extension = "zig",
+        icon = icon,
+        ft = ft,
+        match = { type = "directory", pattern = "build.zig" },
         commands = {
-            run = {
-                file_name = "main";
-                command = "zig run",
-                pass_path = true,
-            },
-            build = {
-                file_name = "build";
-                command = "zig build",
-                set_cwd = true,
-            },
+            run = "zig build run",
+            build = "zig build",
+        },
+    },
+    {
+        icon = icon,
+        ft = ft,
+        match = { type = "file", pattern = ".zig" },
+        commands = {
+            run = "zig run",
+            build = "zig build",
         },
     },
 }

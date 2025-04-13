@@ -1,10 +1,10 @@
 local M = {}
 
-M.language = "󰌛 "
+M.icon = "󰌛 "
 
 M.handlers = {
     {
-        extension = "sln",
+        extensions = { "sln" },
         commands = {
             run = {
                 command = "dotnet run --no-restore --no-build",

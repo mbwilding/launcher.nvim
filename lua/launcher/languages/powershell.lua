@@ -1,15 +1,15 @@
 local M = {}
 
-M.language = "󰨊 "
+local icon = "󰨊 "
+local ft = "powershell"
 
-M.handlers = {
+M.definitions = {
     {
-        extension = "ps1",
+        icon = icon,
+        ft = ft,
+        match = { type = "file", pattern = ".ps1" },
         commands = {
-            run = {
-                command = "pswh",
-                pass_path = true,
-            },
+            run = "pwsh",
         },
     },
 }
