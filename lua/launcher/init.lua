@@ -124,9 +124,13 @@ local function open_command_picker(title, items, format_item, on_choice)
 end
 
 local function select_command(relative_file_path, definitions)
-    local file_extension = relative_file_path:match("^([^%.]+)%.")
+    print('DEBUG[53]: relative_file_path=' .. vim.inspect(relative_file_path))
+    local file_extension = relative_file_path:match("%.([^%.]+)$")
+    print('DEBUG[54]: file_extension=' .. vim.inspect(file_extension))
     local file_without_ext = relative_file_path:match("%.(.+)$")
+    print('DEBUG[55]: file_without_ext=' .. vim.inspect(file_without_ext))
     local file_name = file_without_ext .. "." .. file_extension
+    print('DEBUG[56]: file_name=' .. vim.inspect(file_name))
     local override = false
     local command_entries = {}
 
