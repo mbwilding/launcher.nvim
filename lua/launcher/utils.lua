@@ -102,11 +102,52 @@ local function build_picker_entries(cross_ref)
     return entries
 end
 
-local function open_picker(prompt, items, format_item, on_select)
-    Snacks.picker.select(items, {
-        prompt = prompt,
-        format_item = format_item,
-    }, on_select)
+local function open_picker(title, items, format_item, on_choice)
+    local finder_items = {}
+    for idx, item in ipairs(items) do
+        local text = (format_item or tostring)(item)
+        table.insert(finder_items, {
+            formatted = text,
+            text = idx .. " " .. text,
+            item = item,
+            idx = idx,
+        })
+    end
+
+    local completed = false
+
+    return Snacks.picker.pick({
+        source = "select",
+        items = finder_items,
+        format = Snacks.picker.format.ui_select(nil, #items),
+        title = title,
+        layout = {
+            preview = false,
+            layout = {
+                height = 0,
+                width = 0,
+            },
+        },
+        actions = {
+            confirm = function(picker, item)
+                if completed then
+                    return
+                end
+                completed = true
+                picker:close()
+                vim.schedule(function()
+                    on_choice(item and item.item, item and item.idx)
+                end)
+            end,
+        },
+        on_close = function()
+            if completed then
+                return
+            end
+            completed = true
+            vim.schedule(on_choice)
+        end,
+    })
 end
 
 local function show_command_picker(entry)
