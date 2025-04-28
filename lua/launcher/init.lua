@@ -165,30 +165,37 @@ local function select_command(file_path_relative, definitions)
         for module, def in ipairs(definition.definitions) do
             if is_extension_match(file_extension, def.ft) then
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
-                for command_name, fn in pairs(def.commands) do
-                    if type(fn) ~= "function" then
+                for command_name, command in pairs(def.commands) do
+                    if type(command) == "function" then
+                        local result = command({
+                            file_path_relative = file_path_relative,
+                            file_path_absolute = file_path_absolute,
+                            file_directory = file_directory,
+                            file_extension = file_extension,
+                            file_name = file_name,
+                            file_name_without_extension = file_name_without_extension,
+                        })
+                        table.insert(command_entries, {
+                            display = def.icon .. command_name,
+                            command = result,
+                            cwd = cwd,
+                        })
+                    elseif type(command) == "string" then
+                        table.insert(command_entries, {
+                            display = def.icon .. command_name,
+                            command = command,
+                            cwd = cwd,
+                        })
+                    else
                         error(
-                            "Expected a function in module '"
+                            "Expected a function or string in module '"
                             .. module
                             .. "' for command '"
                             .. command_name
                             .. "', but got "
-                            .. type(fn)
+                            .. type(command)
                         )
                     end
-                    local result = fn({
-                        file_path_relative = file_path_relative,
-                        file_path_absolute = file_path_absolute,
-                        file_directory = file_directory,
-                        file_extension = file_extension,
-                        file_name = file_name,
-                        file_name_without_extension = file_name_without_extension,
-                    })
-                    table.insert(command_entries, {
-                        display = def.icon .. command_name,
-                        command = result,
-                        cwd = cwd,
-                    })
                 end
             end
         end
