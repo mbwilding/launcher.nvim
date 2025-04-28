@@ -20,10 +20,10 @@ local function get_module_definitions()
     local files = vim.fn.globpath(base_path, "*.lua", false, true)
     for _, file in ipairs(files) do
         local lua_module = dofile(file)
-        local module_name = file:match("([^/\\]+)%.lua$")
         if lua_module.register_icon and type(lua_module.register_icon) == "function" then
-            lua_module.register_icon.register_icon()
+            lua_module.register_icon()
         end
+        local module_name = file:match("([^/\\]+)%.lua$")
         if module_name and lua_module.definitions then
             definitions[module_name] = lua_module
         end
