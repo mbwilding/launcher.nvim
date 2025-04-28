@@ -18,11 +18,12 @@ M.definitions = {
                     .. '" '
                     .. '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
-                    .. '" -game -engine HexEditor Linux Development && cp "'
-                    .. engine_path
-                    .. '/compile_commands.json" "'
-                    .. opts.file_path_absolute
-                    .. '"'
+                    .. '" -game -engine HexEditor Linux Development'
+                    -- .. ' && cp "'
+                    -- .. engine_path
+                    -- .. '/compile_commands.json" "'
+                    -- .. opts.file_path_absolute
+                    -- .. '"'
             end,
         },
     },
