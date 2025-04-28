@@ -4,7 +4,13 @@ local icon = "󰦱 "
 local ft = "uproject"
 
 M.register_icon = function()
-    require("nvim-web-devicons").set_icon({ [ft] = { icon = icon, color = "#000000", name = "UnrealEngine" } })
+    require("nvim-web-devicons").set_icon({
+        [ft] = {
+            name = "UnrealEngine",
+            icon = icon,
+            color = vim.o.background == "dark" and "#ffffff" or "#000000",
+        },
+    })
 end
 
 M.definitions = {
