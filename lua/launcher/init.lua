@@ -21,7 +21,7 @@ local function get_module_definitions()
     for _, file in ipairs(files) do
         local lua_module = dofile(file)
         local module_name = file:match("([^/\\]+)%.lua$")
-        if type(lua_module.register_icon) == "function" then
+        if lua_module.register_icon and type(lua_module.register_icon) == "function" then
             lua_module.register_icon.register_icon()
         end
         if module_name and lua_module.definitions then
@@ -145,11 +145,11 @@ local function select_command(file_path_relative, definitions)
                     if type(fn) ~= "function" then
                         error(
                             "Expected a function in module '"
-                            .. module
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(fn)
+                                .. module
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(fn)
                         )
                     end
                     local result = fn({
