@@ -13,6 +13,12 @@ M.register_icon = function()
     })
 end
 
+local platforms = {
+    Windows = "Win64",
+    Linux = "Linux",
+    OSX = "Mac"
+}
+
 M.definitions = {
     {
         icon = icon,
@@ -21,13 +27,13 @@ M.definitions = {
         extension = ft,
         commands = {
             generate_lsp = function(opts)
-                if not vim.g.unreal_engine_platform then
-                    vim.g.unreal_engine_platform = "Linux"
+                if not vim.g.unreal_engine_path then
+                    local errmsg = "Please set vim.g.unreal_engine_path"
+                    vim.notify(errmsg, "error")
+                    error(errmsg)
                 end
 
-                if not vim.g.unreal_engine_path then
-                    vim.g.unreal_engine_path = os.getenv("HOME") .. "/dev/UnrealEngine"
-                end
+                local platform = platforms[jit.os]
 
                 local script
                 local cmd_copy
@@ -36,7 +42,7 @@ M.definitions = {
                 if jit.os ~= "Windows" then
                     script = vim.g.unreal_engine_path
                         .. "/Engine/Build/BatchFiles/"
-                        .. vim.g.unreal_engine_platform
+                        .. platform
                         .. "/Build.sh"
 
                     cmd_copy = 'cp "' .. vim.g.unreal_engine_path .. json .. '" "' .. opts.file_directory .. json .. '"'
@@ -56,7 +62,7 @@ M.definitions = {
                     .. '" -game -engine '
                     .. opts.file_name_without_extension
                     .. "Editor "
-                    .. vim.g.unreal_engine_platform
+                    .. platform
                     .. " Development"
 
                 return '"' .. script .. '" ' .. args .. " && " .. cmd_copy
