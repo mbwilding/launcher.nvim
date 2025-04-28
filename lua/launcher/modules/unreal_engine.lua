@@ -36,8 +36,8 @@ M.definitions = {
                     .. '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
                     .. '" -game -engine '
-                    .. opts.file_name
-                    .. " Editor "
+                    .. opts.file_name_without_extension
+                    .. "Editor "
                     .. vim.g.unreal_engine_platform
                     .. " Development"
 
