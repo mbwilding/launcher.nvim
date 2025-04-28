@@ -21,6 +21,9 @@ local function get_module_definitions()
     for _, file in ipairs(files) do
         local lua_module = dofile(file)
         local module_name = file:match("([^/\\]+)%.lua$")
+        if type(lua_module.register_icon) == "function" then
+            lua_module.register_icon.register_icon()
+        end
         if module_name and lua_module.definitions then
             definitions[module_name] = lua_module
         end
@@ -132,10 +135,6 @@ local function select_command(file_path_relative, definitions)
     local command_entries = {}
 
     for _, definition in pairs(definitions) do
-        if type(definition.register_icon) == "function" then
-            definition.register_icon()
-        end
-
         for module, def in ipairs(definition.definitions) do
             if file_extension == def.extension then
                 local cwd
