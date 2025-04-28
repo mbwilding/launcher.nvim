@@ -137,16 +137,18 @@ local function select_command(path, definitions)
             if def.match.type == "directory" then
                 cwd = vim.fn.getcwd() .. "/" .. (path:match("^(.*)/") or "")
             end
-            for command_name, command in pairs(def.commands) do
+            for command_name, fn in pairs(def.commands) do
+                local file = {
+                    path = path,
+                    directory = directory,
+                    extension = extension,
+                    name = name,
+                    name_without_extension = name_without_extension,
+                }
+                local result = fn(file)
                 table.insert(command_entries, {
                     display = def.icon .. " " .. command_name,
-                    command = command({
-                        path = path,
-                        directory = directory,
-                        extension = extension,
-                        name = name,
-                        name_without_extension = name_without_extension,
-                    }),
+                    command = result,
                     cwd = cwd,
                 })
             end
