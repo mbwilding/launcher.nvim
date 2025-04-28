@@ -1,21 +1,24 @@
 local M = {}
 
 local function execute(selected)
-    vim.cmd("botright split")
-    local buffer = vim.api.nvim_get_current_buf()
+    local buffer = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
     vim.bo[buffer].modified = false
     vim.bo[buffer].syntax = nil
+
+    vim.cmd("botright split")
+    local win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(win, buffer)
 
     vim.fn.jobstart(selected.command, {
         term = true,
         curwin = true,
         on_exit = function(_, exit_code, _)
             if exit_code == 0 then
-                local win = vim.fn.bufwinid(buffer)
-                if win ~= -1 then
+                local win_id = vim.fn.bufwinid(buffer)
+                if win_id ~= -1 then
                     vim.schedule(function()
-                        vim.api.nvim_win_close(win, true)
+                        vim.api.nvim_win_close(win_id, true)
                     end)
                 end
             else
