@@ -138,6 +138,9 @@ local function select_command(path, definitions)
                 cwd = vim.fn.getcwd() .. "/" .. (path:match("^(.*)/") or "")
             end
             for command_name, fn in pairs(def.commands) do
+                if type(fn) ~= "function" then
+                    error("Expected a function for command '" .. command_name .. "', but got " .. type(fn))
+                end
                 local file = {
                     path = path,
                     directory = directory,
