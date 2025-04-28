@@ -111,6 +111,7 @@ local function open_command_picker(title, items, format_item, on_choice)
     local completed = false
     return Snacks.picker.pick({
         source = "select",
+        prompt = "Command  ",
         items = finder_items,
         format = Snacks.picker.format.ui_select(nil, #items),
         title = title,
