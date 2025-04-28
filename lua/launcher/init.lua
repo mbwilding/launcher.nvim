@@ -1,17 +1,5 @@
 local M = {}
 
--- local function execute(selected)
---     local terminal = require("toggleterm.terminal").Terminal
---     local my_term = terminal:new({
---         cmd = selected.command,
---         cwd = selected.cwd,
---         hidden = true,
---         direction = "horizontal",
---         close_on_exit = false,
---     })
---     my_term:open()
--- end
-
 local function execute(selected)
     vim.cmd("botright split")
     vim.cmd("terminal " .. selected.command)
