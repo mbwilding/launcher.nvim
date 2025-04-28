@@ -2,17 +2,25 @@ local M = {}
 
 local function execute(selected)
     vim.cmd("botright split")
-    vim.cmd("terminal " .. selected.command)
     local buffer = vim.api.nvim_get_current_buf()
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
+    vim.bo[buffer].modified = false
 
-    vim.api.nvim_create_autocmd("TermClose", {
-        buffer = buffer,
-        once = true,
-        callback = function(event)
-            local win = vim.fn.bufwinid(event.buf)
-            if win ~= -1 then
-                vim.api.nvim_win_close(win, true)
+    vim.fn.jobstart(selected.command, {
+        term = true,
+        curwin = true,
+        on_exit = function(_, exit_code, _)
+            if exit_code == 0 then
+                local win = vim.fn.bufwinid(buffer)
+                if win ~= -1 then
+                    vim.schedule(function()
+                        vim.api.nvim_win_close(win, true)
+                    end)
+                end
+            else
+                vim.schedule(function()
+                    vim.notify("Error: command exited with code " .. exit_code, vim.log.levels.ERROR)
+                end)
             end
         end,
     })

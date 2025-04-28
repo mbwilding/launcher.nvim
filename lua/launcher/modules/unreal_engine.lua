@@ -44,7 +44,7 @@ M.definitions = {
         icon = icon,
         ft = ft,
         commands = {
-            generate_lsp = function(opts)
+            ["generate-lsp"] = function(opts)
                 check_variables()
                 local platform = get_platform()
                 local build_script = get_build_script_path(platform)

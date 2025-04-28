@@ -8,11 +8,11 @@ M.definitions = {
         ft = "sln",
         cwd = true,
         commands = {
-            run = "dotnet run --no-restore --no-build",
-            build = "dotnet build --no-restore",
-            restore = "dotnet restore",
-            watch = "dotnet watch",
-            ["watch-non-interactive"] = "dotnet watch --non-interactive",
+            run = "dotnet run --interactive --no-restore --no-build",
+            build = "dotnet build --interactive --no-restore",
+            restore = "dotnet restore --interactive",
+            watch = "dotnet watch --interactive",
+            ["watch-non-interactive"] = "dotnet watch --interactive --non-interactive",
         },
     },
     {
@@ -20,13 +20,13 @@ M.definitions = {
         ft = "csproj",
         commands = {
             run = function(opts)
-                return "dotnet run --no-restore --no-build --project " .. opts.file_path_absolute
+                return "dotnet run --interactive --project " .. '"' .. opts.file_path_absolute .. '"'
             end,
             build = function(opts)
-                return "dotnet build --no-restore --project " .. opts.file_path_absolute
+                return "dotnet build --interactive --project " .. '"' .. opts.file_path_absolute .. '"'
             end,
             restore = function(opts)
-                return "dotnet restore --project " .. opts.file_path_absolute
+                return "dotnet restore --interactive " .. '"' .. opts.file_path_absolute .. '"'
             end,
         },
     },
