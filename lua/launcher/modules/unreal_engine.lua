@@ -16,16 +16,18 @@ M.definitions = {
                 local project_name = "Hex"
                 local platform = "Linux"
 
-                local cmd_generate = '"' .. engine_path .. '" ' ..
-                    '-mode=GenerateClangDatabase -project="' ..
-                    opts.file_path_absolute ..
-                    '" -game -engine ' .. project_name .. "Editor " .. platform .. " Development"
-
-                local cmd_copy = 'cp "'
+                local cmd_generate = '"'
                     .. engine_path
-                    .. '/compile_commands.json" "'
+                    .. '" '
+                    .. '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
-                    .. '"'
+                    .. '" -game -engine '
+                    .. project_name
+                    .. "Editor "
+                    .. platform
+                    .. " Development"
+
+                local cmd_copy = 'cp "' .. engine_path .. '/compile_commands.json" "' .. opts.file_directory .. '"'
 
                 return cmd_generate .. " && " .. cmd_copy
             end,

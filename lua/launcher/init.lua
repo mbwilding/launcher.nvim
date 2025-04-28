@@ -142,11 +142,11 @@ local function select_command(file_path_relative, definitions)
                     if type(fn) ~= "function" then
                         error(
                             "Expected a function in module '"
-                            .. module
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(fn)
+                                .. module
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(fn)
                         )
                     end
                     local result = fn({
