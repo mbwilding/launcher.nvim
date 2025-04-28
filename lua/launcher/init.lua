@@ -125,9 +125,9 @@ end
 local function select_command(relative_file_path, definitions)
     local file = vim.fn.fnamemodify(relative_file_path, ":p")
     local directory = vim.fn.fnamemodify(file, ":h")
-    local extension = file:match("%.([^%.]+)$")
-    local name_without_extension = file:match("%.(.+)$")
-    local name = name_without_extension .. "." .. extension
+    local extension = vim.fn.fnamemodify(file, ":e")
+    local name_without_extension = vim.fn.fnamemodify(file, ":t:r")
+    local name = vim.fn.fnamemodify(file, ":t")
 
     local command_entries = {}
 
