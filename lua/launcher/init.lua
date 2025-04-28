@@ -161,7 +161,7 @@ local function select_command(file_path_relative, definitions)
                         file_name_without_extension = file_name_without_extension,
                     })
                     table.insert(command_entries, {
-                        display = def.icon .. " " .. command_name,
+                        display = def.icon .. command_name,
                         command = result,
                         cwd = cwd,
                     })
