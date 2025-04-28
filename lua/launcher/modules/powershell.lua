@@ -1,11 +1,13 @@
 local M = {}
 
+local ft = "ps1"
+
 M.definitions = {
     {
         icon = "󰨊 ",
-        ft = "powershell",
+        ft = ft,
         cwd = true,
-        extension = "ps1",
+        extension = ft,
         commands = {
             run = function(opts)
                 return "pwsh " .. '"' .. opts.file_path_absolute .. '"'
