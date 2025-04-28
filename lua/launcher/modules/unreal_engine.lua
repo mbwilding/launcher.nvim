@@ -10,9 +10,18 @@ M.definitions = {
         cwd = true,
         commands = {
             lsp = function(opts)
-                print(vim.inspect(opts))
-                return 'echo "hello"'
-                -- return '~/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh -mode=GenerateClangDatabase -project="{{ file }}" -game -engine HexEditor Linux Development'
+                -- TODO: Find path or get consumer to set a global var with path
+                local engine_path = "~/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
+                return '"'
+                    .. engine_path
+                    .. '" '
+                    .. ' -mode=GenerateClangDatabase -project="'
+                    .. opts.file_path_absolute
+                    .. '" -game -engine HexEditor Linux Development && cp "'
+                    .. engine_path
+                    .. '"/compile_commands.json "'
+                    .. opts.file_path_absolute
+                    .. '"'
             end,
         },
     },

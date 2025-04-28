@@ -139,8 +139,14 @@ local function select_command(file_path_relative, definitions)
             end
             for command_name, fn in pairs(def.commands) do
                 if type(fn) ~= "function" then
-                    error("Expected a function in module '" ..
-                        module .. "' for command '" .. command_name .. "', but got " .. type(fn))
+                    error(
+                        "Expected a function in module '"
+                            .. module
+                            .. "' for command '"
+                            .. command_name
+                            .. "', but got "
+                            .. type(fn)
+                    )
                 end
                 local result = fn({
                     file_path_relative = file_path_relative,
