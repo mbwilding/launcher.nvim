@@ -1,15 +1,33 @@
 local M = {}
 
+-- local function execute(selected)
+--     local terminal = require("toggleterm.terminal").Terminal
+--     local my_term = terminal:new({
+--         cmd = selected.command,
+--         cwd = selected.cwd,
+--         hidden = true,
+--         direction = "horizontal",
+--         close_on_exit = false,
+--     })
+--     my_term:open()
+-- end
+
 local function execute(selected)
-    local terminal = require("toggleterm.terminal").Terminal
-    local my_term = terminal:new({
-        cmd = selected.command,
-        cwd = selected.cwd,
-        hidden = true,
-        direction = "horizontal",
-        close_on_exit = false,
+    vim.cmd("botright split")
+    vim.cmd("terminal " .. selected.command)
+    local buffer = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
+
+    vim.api.nvim_create_autocmd("TermClose", {
+        buffer = buffer,
+        once = true,
+        callback = function(event)
+            local win = vim.fn.bufwinid(event.buf)
+            if win ~= -1 then
+                vim.api.nvim_win_close(win, true)
+            end
+        end,
     })
-    my_term:open()
 end
 
 local function get_module_definitions()
@@ -168,7 +186,7 @@ local function select_command(file_path_relative, definitions)
         end
     end
 
-    open_command_picker(string.format("Pick Command for %s", file_name), command_entries, function(item)
+    open_command_picker("Pick command for " .. file_name, command_entries, function(item)
         return item.display
     end, function(selected)
         if selected then
@@ -188,7 +206,9 @@ function M.picker()
 end
 
 function M.rerun()
-    execute(last_selected)
+    if last_selected then
+        execute(last_selected)
+    end
 end
 
 return M
