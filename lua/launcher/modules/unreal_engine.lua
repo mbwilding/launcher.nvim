@@ -13,7 +13,7 @@ M.definitions = {
             lsp = function(opts)
                 -- TODO: Find path or get consumer to set a global var with path
                 local engine_path = "~/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
-                return 'set -eax && sh "'
+                return 'set -eax && sh -c "'
                     .. engine_path
                     .. '" '
                     .. '-mode=GenerateClangDatabase -project="'
