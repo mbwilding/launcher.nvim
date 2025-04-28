@@ -183,6 +183,8 @@ function M.run()
     local definitions = get_module_definitions()
     local file_types = get_file_types(definitions)
 
+    print(vim.inspect(file_types))
+
     select_file(file_types, function(file)
         select_command(file, definitions)
     end)
