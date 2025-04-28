@@ -20,24 +20,32 @@ M.definitions = {
         cwd = true,
         extension = ft,
         commands = {
-            lsp = function(opts)
-                -- TODO: Find path or get consumer to set a global var with path
-                local engine_path = os.getenv("HOME") .. "/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
-                local project_name = "Hex"
-                local platform = "Linux"
+            generate_lsp = function(opts)
+                if not vim.g.unreal_engine_path then
+                    vim.g.unreal_engine_path = os.getenv("HOME")
+                        .. "/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
+                end
+
+                if not vim.g.unreal_engine_platform then
+                    vim.g.unreal_engine_platform = "Linux"
+                end
 
                 local cmd_generate = '"'
-                    .. engine_path
+                    .. vim.g.unreal_engine_path
                     .. '" '
                     .. '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
                     .. '" -game -engine '
-                    .. project_name
+                    .. opts.file_name
                     .. "Editor "
-                    .. platform
+                    .. vim.g.unreal_engine_platform
                     .. " Development"
 
-                local cmd_copy = 'cp "' .. engine_path .. '/compile_commands.json" "' .. opts.file_directory .. '/"'
+                local cmd_copy = 'cp "'
+                    .. vim.g.unreal_engine_path
+                    .. '/compile_commands.json" "'
+                    .. opts.file_directory
+                    .. '/"'
 
                 return cmd_generate .. " && " .. cmd_copy
             end,
