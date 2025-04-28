@@ -20,6 +20,8 @@ M.definitions = {
                     "-mode=GenerateClangDatabase -project='" ..
                     opts.file_path_absolute .. "' -game -engine " .. project_name .. "Editor " .. platform .. " Development"
 
+                print(vim.inspect(opts))
+
                 print(cmd)
                 return cmd
                 -- .. ' && cp "'
