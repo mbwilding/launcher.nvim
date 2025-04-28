@@ -1,16 +1,17 @@
 local M = {}
 
-local ft = "ps1"
+local icon = " "
+local ft = "bash"
 
 M.definitions = {
     {
-        icon = "󰨊 ",
+        icon = icon,
         ft = ft,
         cwd = true,
-        extensions = ft,
+        extensions = "sh",
         commands = {
             run = function(opts)
-                return "pwsh " .. '"' .. opts.file_path_absolute .. '"'
+                return "bash " .. '"' .. opts.file_path_absolute .. '"'
             end,
         },
     },

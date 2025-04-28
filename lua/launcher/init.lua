@@ -144,6 +144,19 @@ local function open_command_picker(title, items, format_item, on_choice)
     })
 end
 
+local function is_extension_match(file_extension, extensions)
+    if type(extensions) == "table" then
+        for _, ext in ipairs(extensions) do
+            if file_extension == ext then
+                return true
+            end
+        end
+        return false
+    else
+        return file_extension == extensions
+    end
+end
+
 local last_selected
 local function select_command(file_path_relative, definitions)
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
@@ -156,17 +169,17 @@ local function select_command(file_path_relative, definitions)
 
     for _, definition in pairs(definitions) do
         for module, def in ipairs(definition.definitions) do
-            if file_extension == def.extension then
+            if is_extension_match(file_extension, def.extensions) then
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, fn in pairs(def.commands) do
                     if type(fn) ~= "function" then
                         error(
                             "Expected a function in module '"
-                            .. module
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(fn)
+                                .. module
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(fn)
                         )
                     end
                     local result = fn({
