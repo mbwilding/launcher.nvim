@@ -21,19 +21,37 @@ M.definitions = {
         extension = ft,
         commands = {
             generate_lsp = function(opts)
-                if not vim.g.unreal_engine_path then
-                    vim.g.unreal_engine_path = os.getenv("HOME")
-                        .. "/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
-                end
-
                 if not vim.g.unreal_engine_platform then
                     vim.g.unreal_engine_platform = "Linux"
                 end
 
-                local cmd_generate = '"'
-                    .. vim.g.unreal_engine_path
-                    .. '" '
-                    .. '-mode=GenerateClangDatabase -project="'
+                if not vim.g.unreal_engine_path then
+                    vim.g.unreal_engine_path = os.getenv("HOME") .. "/dev/UnrealEngine"
+                end
+
+                local script
+                local cmd_copy
+                local json = "/compile_commands.json"
+
+                if jit.os ~= "Windows" then
+                    script = vim.g.unreal_engine_path
+                        .. "/Engine/Build/BatchFiles/"
+                        .. vim.g.unreal_engine_platform
+                        .. "/Build.sh"
+
+                    cmd_copy = 'cp "' .. vim.g.unreal_engine_path .. json .. '" "' .. opts.file_directory .. json .. '"'
+                else
+                    script = vim.g.unreal_engine_path .. "/Engine/Build/BatchFiles/Build.bat"
+                    cmd_copy = "powershell -Command \"Copy-Item -Path '"
+                        .. vim.g.unreal_engine_path
+                        .. json
+                        .. "' -Destination '"
+                        .. opts.file_directory
+                        .. json
+                        .. "'\""
+                end
+
+                local args = '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
                     .. '" -game -engine '
                     .. opts.file_name_without_extension
@@ -41,13 +59,7 @@ M.definitions = {
                     .. vim.g.unreal_engine_platform
                     .. " Development"
 
-                local cmd_copy = 'cp "'
-                    .. vim.g.unreal_engine_path
-                    .. '/compile_commands.json" "'
-                    .. opts.file_directory
-                    .. '/"'
-
-                return cmd_generate .. " && " .. cmd_copy
+                return '"' .. script .. '" ' .. args .. " && " .. cmd_copy
             end,
         },
     },
