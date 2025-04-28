@@ -84,8 +84,9 @@ M.definitions = {
                     .. opts.file_path_absolute
                     .. '" -game -engine '
                     .. opts.file_name_without_extension
-                    .. "Editor Target Development "
+                    .. "Editor "
                     .. platform
+                    .. " Development"
 
                 return '"' .. build_script .. '" ' .. args
             end,
