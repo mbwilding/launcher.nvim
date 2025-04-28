@@ -3,8 +3,8 @@ local M = {}
 local function execute(selected)
     local buffer = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
-    vim.bo[buffer].modified = false
     vim.bo[buffer].syntax = nil
+    vim.bo[buffer].modified = false
 
     vim.cmd("botright split")
     local win = vim.api.nvim_get_current_win()
@@ -22,10 +22,6 @@ local function execute(selected)
                         vim.api.nvim_win_close(win_id, true)
                     end)
                 end
-            else
-                vim.schedule(function()
-                    vim.notify("Error: command exited with code " .. exit_code, vim.log.levels.ERROR)
-                end)
             end
         end,
     })
