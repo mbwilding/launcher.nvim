@@ -9,6 +9,7 @@ local function execute(selected)
     vim.cmd("botright split")
     local win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(win, buffer)
+    vim.cmd("startinsert")
 
     vim.fn.jobstart(selected.command, {
         term = true,
@@ -201,11 +202,11 @@ local function select_command(file_path_relative, definitions)
                     else
                         error(
                             "Expected a function or string in module '"
-                            .. module
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(command)
+                                .. module
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(command)
                         )
                     end
                 end
