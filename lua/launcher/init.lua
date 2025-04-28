@@ -132,14 +132,14 @@ local function select_command(path, definitions)
     local command_entries = {}
 
     for _, definition in pairs(definitions) do
-        for _, def in ipairs(definition.definitions) do
+        for module, def in ipairs(definition.definitions) do
             local cwd = nil
             if def.match.type == "directory" then
                 cwd = vim.fn.getcwd() .. "/" .. (path:match("^(.*)/") or "")
             end
             for command_name, fn in pairs(def.commands) do
                 if type(fn) ~= "function" then
-                    error("Expected a function for command '" .. command_name .. "', but got " .. type(fn))
+                    error("Expected a function in module '" .. module .. "' for command '" .. command_name .. "', but got " .. type(fn))
                 end
                 local file = {
                     path = path,
