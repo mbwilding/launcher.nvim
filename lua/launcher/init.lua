@@ -12,20 +12,20 @@ local function execute(selected)
     my_term:open()
 end
 
-local function get_language_definitions()
-    local language_definitions = {}
+local function get_module_definitions()
+    local definitions = {}
     local source = debug.getinfo(1, "S").source:sub(2)
     local current_dir = source:match("^(.*[/\\])")
-    local base_path = current_dir .. "languages"
+    local base_path = current_dir .. "modules"
     local files = vim.fn.globpath(base_path, "*.lua", false, true)
     for _, file in ipairs(files) do
-        local module = dofile(file)
-        local language = file:match("([^/\\]+)%.lua$")
-        if language and module.definitions then
-            language_definitions[language] = module
+        local lua_module = dofile(file)
+        local module_name = file:match("([^/\\]+)%.lua$")
+        if module_name and lua_module.definitions then
+            definitions[module_name] = lua_module
         end
     end
-    return language_definitions
+    return definitions
 end
 
 local function get_file_types(definitions)
@@ -123,59 +123,37 @@ local function open_command_picker(title, items, format_item, on_choice)
     })
 end
 
-local function select_command(relative_file_path, definitions)
-    print('DEBUG[53]: relative_file_path=' .. vim.inspect(relative_file_path))
-    local file_extension = relative_file_path:match("%.([^%.]+)$")
-    print('DEBUG[54]: file_extension=' .. vim.inspect(file_extension))
-    local file_without_ext = relative_file_path:match("%.(.+)$")
-    print('DEBUG[55]: file_without_ext=' .. vim.inspect(file_without_ext))
-    local file_name = file_without_ext .. "." .. file_extension
-    print('DEBUG[56]: file_name=' .. vim.inspect(file_name))
-    local override = false
+local function select_command(path, definitions)
+    local directory = path:match("(.+/)")
+    local extension = path:match("%.([^%.]+)$")
+    local name_without_extension = path:match("%.(.+)$")
+    local name = name_without_extension .. "." .. extension
+
     local command_entries = {}
 
-    -- First pass: Check if any directory definition exactly matches the filename.
-    for _language, definition in pairs(definitions) do
+    for _, definition in pairs(definitions) do
         for _, def in ipairs(definition.definitions) do
-            if def.match.type == "directory" and relative_file_path:match(def.match.pattern) then
-                local escaped_pattern = vim.pesc(def.match.pattern)
-                if relative_file_path:match(escaped_pattern) then
-                    override = true
-                end
+            local cwd = nil
+            if def.match.type == "directory" then
+                cwd = vim.fn.getcwd() .. "/" .. (path:match("^(.*)/") or "")
+            end
+            for command_name, command in pairs(def.commands) do
+                table.insert(command_entries, {
+                    display = def.icon .. " " .. command_name,
+                    command = command({
+                        path = path,
+                        directory = directory,
+                        extension = extension,
+                        name = name,
+                        name_without_extension = name_without_extension,
+                    }),
+                    cwd = cwd,
+                })
             end
         end
     end
 
-    -- Second pass: Insert command entries using filtering.
-    for _language, definition in pairs(definitions) do
-        for _, def in ipairs(definition.definitions) do
-            if relative_file_path:match(def.match.pattern) then
-                if def.match.type == "file" and override then
-                    -- Skip file definitions if there's a directory override.
-                else
-                    for command_type, command in pairs(def.commands) do
-                        local cwd = nil
-                        local formatted_command
-
-                        if def.match.type == "directory" then
-                            cwd = vim.fn.getcwd() .. "/" .. (relative_file_path:match("^(.*)/") or "")
-                            formatted_command = command
-                        else
-                            formatted_command = command .. ' "' .. relative_file_path .. '"'
-                        end
-
-                        table.insert(command_entries, {
-                            display = def.icon .. " " .. command_type,
-                            command = formatted_command,
-                            cwd = cwd,
-                        })
-                    end
-                end
-            end
-        end
-    end
-
-    open_command_picker(string.format("Pick Command for %s", file_name), command_entries, function(item)
+    open_command_picker(string.format("Pick Command for %s", name), command_entries, function(item)
         return item.display
     end, function(selected)
         if selected then
@@ -185,7 +163,7 @@ local function select_command(relative_file_path, definitions)
 end
 
 function M.run()
-    local definitions = get_language_definitions()
+    local definitions = get_module_definitions()
     local file_types = get_file_types(definitions)
 
     select_file(file_types, function(file)
