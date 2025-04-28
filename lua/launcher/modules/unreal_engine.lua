@@ -43,7 +43,6 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
-        extensions = ft,
         commands = {
             generate_lsp = function(opts)
                 check_variables()

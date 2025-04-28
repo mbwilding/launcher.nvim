@@ -7,7 +7,6 @@ M.definitions = {
         icon = "󰨊 ",
         ft = ft,
         cwd = true,
-        extensions = ft,
         commands = {
             run = function(opts)
                 return "pwsh " .. '"' .. opts.file_path_absolute .. '"'

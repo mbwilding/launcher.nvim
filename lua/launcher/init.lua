@@ -169,7 +169,7 @@ local function select_command(file_path_relative, definitions)
 
     for _, definition in pairs(definitions) do
         for module, def in ipairs(definition.definitions) do
-            if is_extension_match(file_extension, def.extensions) then
+            if is_extension_match(file_extension, def.ft) then
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, fn in pairs(def.commands) do
                     if type(fn) ~= "function" then
