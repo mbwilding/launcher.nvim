@@ -13,49 +13,44 @@ M.register_icon = function()
     })
 end
 
-local platforms = {
-    Windows = "Win64",
-    Linux = "Linux",
-    OSX = "Mac"
-}
+local function check_variables()
+    if not vim.g.unreal_engine_path then
+        local errmsg = "Please set vim.g.unreal_engine_path"
+        vim.notify(errmsg, "error")
+        error(errmsg)
+    end
+end
+
+local function get_platform()
+    local platforms = {
+        Windows = "Win64",
+        Linux = "Linux",
+        OSX = "Mac",
+    }
+
+    return platforms[jit.os]
+end
+
+local function get_build_script_path(platform)
+    if jit.os ~= "Windows" then
+        return vim.g.unreal_engine_path .. "/Engine/Build/BatchFiles/" .. platform .. "/Build.sh"
+    else
+        return vim.g.unreal_engine_path .. "/Engine/Build/BatchFiles/Build.bat"
+    end
+end
 
 M.definitions = {
     {
         icon = icon,
         ft = ft,
-        cwd = true,
         extension = ft,
         commands = {
             generate_lsp = function(opts)
-                if not vim.g.unreal_engine_path then
-                    local errmsg = "Please set vim.g.unreal_engine_path"
-                    vim.notify(errmsg, "error")
-                    error(errmsg)
-                end
+                check_variables()
+                local platform = get_platform()
+                local build_script = get_build_script_path(platform)
 
-                local platform = platforms[jit.os]
-
-                local script
-                local cmd_copy
                 local json = "/compile_commands.json"
-
-                if jit.os ~= "Windows" then
-                    script = vim.g.unreal_engine_path
-                        .. "/Engine/Build/BatchFiles/"
-                        .. platform
-                        .. "/Build.sh"
-
-                    cmd_copy = 'cp "' .. vim.g.unreal_engine_path .. json .. '" "' .. opts.file_directory .. json .. '"'
-                else
-                    script = vim.g.unreal_engine_path .. "/Engine/Build/BatchFiles/Build.bat"
-                    cmd_copy = "powershell -Command \"Copy-Item -Path '"
-                        .. vim.g.unreal_engine_path
-                        .. json
-                        .. "' -Destination '"
-                        .. opts.file_directory
-                        .. json
-                        .. "'\""
-                end
 
                 local args = '-mode=GenerateClangDatabase -project="'
                     .. opts.file_path_absolute
@@ -65,7 +60,34 @@ M.definitions = {
                     .. platform
                     .. " Development"
 
-                return '"' .. script .. '" ' .. args .. " && " .. cmd_copy
+                local cmd_copy
+                if jit.os ~= "Windows" then
+                    cmd_copy = 'cp "' .. vim.g.unreal_engine_path .. json .. '" "' .. opts.file_directory .. json .. '"'
+                else
+                    cmd_copy = "powershell -Command \"Copy-Item -Path '"
+                        .. vim.g.unreal_engine_path
+                        .. json
+                        .. "' -Destination '"
+                        .. opts.file_directory
+                        .. json
+                        .. "'\""
+                end
+
+                return '"' .. build_script .. '" ' .. args .. " && " .. cmd_copy
+            end,
+            build = function(opts)
+                check_variables()
+                local platform = get_platform()
+                local build_script = get_build_script_path(platform)
+
+                local args = '"'
+                    .. opts.file_path_absolute
+                    .. '" -game -engine '
+                    .. opts.file_name_without_extension
+                    .. "Editor Target Development "
+                    .. platform
+
+                return '"' .. build_script .. '" ' .. args
             end,
         },
     },
