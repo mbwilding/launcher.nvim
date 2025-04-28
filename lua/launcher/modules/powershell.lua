@@ -7,7 +7,7 @@ M.definitions = {
         cwd = true,
         commands = {
             run = function(opts)
-                return "pwsh " .. '"' .. opts.file .. '"'
+                return "pwsh " .. '"' .. opts.file_path_absolute .. '"'
             end,
         },
     },

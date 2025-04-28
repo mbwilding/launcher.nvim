@@ -122,12 +122,12 @@ local function open_command_picker(title, items, format_item, on_choice)
     })
 end
 
-local function select_command(relative_file_path, definitions)
-    local file = vim.fn.fnamemodify(relative_file_path, ":p")
-    local directory = vim.fn.fnamemodify(file, ":h")
-    local extension = vim.fn.fnamemodify(file, ":e")
-    local name_without_extension = vim.fn.fnamemodify(file, ":t:r")
-    local name = vim.fn.fnamemodify(file, ":t")
+local function select_command(file_path_relative, definitions)
+    local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
+    local file_directory = vim.fn.fnamemodify(file_path_absolute, ":h")
+    local file_extension = vim.fn.fnamemodify(file_path_absolute, ":e")
+    local file_name_without_extension = vim.fn.fnamemodify(file_path_absolute, ":t:r")
+    local file_name = vim.fn.fnamemodify(file_path_absolute, ":t")
 
     local command_entries = {}
 
@@ -135,7 +135,7 @@ local function select_command(relative_file_path, definitions)
         for module, def in ipairs(definition.definitions) do
             local cwd
             if def.cwd then
-                cwd = directory
+                cwd = file_directory
             end
             for command_name, fn in pairs(def.commands) do
                 if type(fn) ~= "function" then
@@ -143,11 +143,12 @@ local function select_command(relative_file_path, definitions)
                         module .. "' for command '" .. command_name .. "', but got " .. type(fn))
                 end
                 local result = fn({
-                    file = file,
-                    directory = directory,
-                    extension = extension,
-                    name = name,
-                    name_without_extension = name_without_extension,
+                    file_path_relative = file_path_relative,
+                    file_path_absolute = file_path_absolute,
+                    file_directory = file_directory,
+                    file_extension = file_extension,
+                    file_name = file_name,
+                    file_name_without_extension = file_name_without_extension,
                 })
                 table.insert(command_entries, {
                     display = def.icon .. " " .. command_name,
@@ -158,7 +159,7 @@ local function select_command(relative_file_path, definitions)
         end
     end
 
-    open_command_picker(string.format("Pick Command for %s", name), command_entries, function(item)
+    open_command_picker(string.format("Pick Command for %s", file_name), command_entries, function(item)
         return item.display
     end, function(selected)
         if selected then
