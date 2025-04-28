@@ -7,9 +7,11 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
-        match = { type = "file", pattern = ".fish" },
+        cwd = true,
         commands = {
-            run = "fish",
+            run = function(opts)
+                return "fish " .. '"' .. opts.file_path_absolute .. '"'
+            end,
         },
     },
 }
