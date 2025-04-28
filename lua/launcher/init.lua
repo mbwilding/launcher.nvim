@@ -132,6 +132,10 @@ local function select_command(file_path_relative, definitions)
     local command_entries = {}
 
     for _, definition in pairs(definitions) do
+        if type(definition.register_icon) == "function" then
+            definition.register_icon()
+        end
+
         for module, def in ipairs(definition.definitions) do
             if file_extension == def.extension then
                 local cwd
@@ -142,11 +146,11 @@ local function select_command(file_path_relative, definitions)
                     if type(fn) ~= "function" then
                         error(
                             "Expected a function in module '"
-                                .. module
-                                .. "' for command '"
-                                .. command_name
-                                .. "', but got "
-                                .. type(fn)
+                            .. module
+                            .. "' for command '"
+                            .. command_name
+                            .. "', but got "
+                            .. type(fn)
                         )
                     end
                     local result = fn({

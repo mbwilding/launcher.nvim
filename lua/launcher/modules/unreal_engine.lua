@@ -3,6 +3,10 @@ local M = {}
 local icon = "󰦱 "
 local ft = "uproject"
 
+M.register_icon = function()
+    require("nvim-web-devicons").set_icon({ uproject = { icon = icon, color = "#000000", name = "uproject" } })
+end
+
 M.definitions = {
     {
         icon = icon,
@@ -27,7 +31,7 @@ M.definitions = {
                     .. platform
                     .. " Development"
 
-                local cmd_copy = 'cp "' .. engine_path .. '/compile_commands.json" "' .. opts.file_directory .. '"'
+                local cmd_copy = 'cp "' .. engine_path .. '/compile_commands.json" "' .. opts.file_directory .. '/"'
 
                 return cmd_generate .. " && " .. cmd_copy
             end,
