@@ -16,13 +16,13 @@ M.definitions = {
                 local project_name = "Hex"
                 local platform = "Linux"
 
-                local cmd = 'set -eax && "' .. engine_path .. '" ' ..
-                    "-mode=GenerateClangDatabase -project='" ..
-                    opts.file_path_absolute .. "' -game -engine " .. project_name .. "Editor " .. platform .. " Development"
-
-                print(vim.inspect(opts))
+                local cmd = '"' .. engine_path .. '" ' ..
+                    '-mode=GenerateClangDatabase -project="' ..
+                    opts.file_path_absolute .. '" -game -engine ' .. project_name .. "Editor " .. platform .. " Development"
 
                 print(cmd)
+                print(vim.inspect(opts))
+
                 return cmd
                 -- .. ' && cp "'
                 -- .. engine_path
