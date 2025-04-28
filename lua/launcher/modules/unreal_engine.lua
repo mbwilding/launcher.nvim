@@ -1,7 +1,7 @@
 local M = {}
 
 local icon = "󰦱 "
-local ft = "cpp"
+local ft = "uproject"
 
 M.definitions = {
     {
