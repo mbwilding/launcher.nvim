@@ -7,7 +7,7 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
-        match = { type = "file", pattern = ".uproject" },
+        cwd = true,
         commands = {
             lsp = function(file)
                 print(vim.inspect(file))

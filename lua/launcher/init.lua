@@ -88,7 +88,6 @@ local function open_command_picker(title, items, format_item, on_choice)
     end
 
     local completed = false
-
     return Snacks.picker.pick({
         source = "select",
         items = finder_items,
@@ -123,32 +122,33 @@ local function open_command_picker(title, items, format_item, on_choice)
     })
 end
 
-local function select_command(path, definitions)
-    local directory = path:match("(.+/)")
-    local extension = path:match("%.([^%.]+)$")
-    local name_without_extension = path:match("%.(.+)$")
+local function select_command(relative_file_path, definitions)
+    local file = vim.fn.fnamemodify(relative_file_path, ":p")
+    local directory = vim.fn.fnamemodify(file, ":h")
+    local extension = file:match("%.([^%.]+)$")
+    local name_without_extension = file:match("%.(.+)$")
     local name = name_without_extension .. "." .. extension
 
     local command_entries = {}
 
     for _, definition in pairs(definitions) do
         for module, def in ipairs(definition.definitions) do
-            local cwd = nil
-            if def.match.type == "directory" then
-                cwd = vim.fn.getcwd() .. "/" .. (path:match("^(.*)/") or "")
+            local cwd
+            if def.cwd then
+                cwd = directory
             end
             for command_name, fn in pairs(def.commands) do
                 if type(fn) ~= "function" then
-                    error("Expected a function in module '" .. module .. "' for command '" .. command_name .. "', but got " .. type(fn))
+                    error("Expected a function in module '" ..
+                        module .. "' for command '" .. command_name .. "', but got " .. type(fn))
                 end
-                local file = {
-                    path = path,
+                local result = fn({
+                    file = file,
                     directory = directory,
                     extension = extension,
                     name = name,
                     name_without_extension = name_without_extension,
-                }
-                local result = fn(file)
+                })
                 table.insert(command_entries, {
                     display = def.icon .. " " .. command_name,
                     command = result,
