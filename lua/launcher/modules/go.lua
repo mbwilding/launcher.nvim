@@ -7,9 +7,11 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
-        match = { type = "file", pattern = ".go" },
+        cwd = true,
         commands = {
-            run = "go run",
+            run = function(opts)
+                return "go run " .. '"' .. opts.file_path_absolute .. '"'
+            end,
         },
     },
 }
