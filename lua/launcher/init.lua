@@ -54,7 +54,13 @@ local function get_file_types(definitions)
     for _, module in pairs(definitions) do
         for _, definition in ipairs(module.definitions) do
             if definition.ft then
-                unique_file_type[definition.ft] = true
+                if type(definition.ft) == "table" then
+                    for _, ft in ipairs(definition.ft) do
+                        unique_file_type[ft] = true
+                    end
+                else
+                    unique_file_type[definition.ft] = true
+                end
             end
         end
     end
@@ -175,11 +181,11 @@ local function select_command(file_path_relative, definitions)
                     if type(fn) ~= "function" then
                         error(
                             "Expected a function in module '"
-                                .. module
-                                .. "' for command '"
-                                .. command_name
-                                .. "', but got "
-                                .. type(fn)
+                            .. module
+                            .. "' for command '"
+                            .. command_name
+                            .. "', but got "
+                            .. type(fn)
                         )
                     end
                     local result = fn({
