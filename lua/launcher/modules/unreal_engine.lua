@@ -37,7 +37,7 @@ M.definitions = {
                     .. opts.file_path_absolute
                     .. '" -game -engine '
                     .. opts.file_name
-                    .. "Editor "
+                    .. " Editor "
                     .. vim.g.unreal_engine_platform
                     .. " Development"
 
