@@ -6,8 +6,8 @@ M.definitions = {
         ft = "powershell",
         cwd = true,
         commands = {
-            run = function(file)
-                return "pwsh " .. '"' .. file.path .. '"'
+            run = function(opts)
+                return "pwsh " .. '"' .. opts.file .. '"'
             end,
         },
     },

@@ -9,8 +9,8 @@ M.definitions = {
         ft = ft,
         cwd = true,
         commands = {
-            lsp = function(file)
-                print(vim.inspect(file))
+            lsp = function(opts)
+                print(vim.inspect(opts))
                 return 'echo "hello"'
                 -- return '~/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh -mode=GenerateClangDatabase -project="{{ file }}" -game -engine HexEditor Linux Development'
             end,
