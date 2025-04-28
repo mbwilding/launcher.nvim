@@ -18,7 +18,6 @@ M.definitions = {
         icon = icon,
         ft = ft,
         cwd = true,
-        extension = ft,
         commands = {
             lsp = function(opts)
                 -- TODO: Find path or get consumer to set a global var with path
