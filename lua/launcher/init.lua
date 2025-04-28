@@ -5,6 +5,7 @@ local function execute(selected)
     local buffer = vim.api.nvim_get_current_buf()
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
     vim.bo[buffer].modified = false
+    vim.bo[buffer].syntax = nil
 
     vim.fn.jobstart(selected.command, {
         term = true,

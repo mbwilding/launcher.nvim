@@ -33,4 +33,3 @@ M.definitions = {
 }
 
 return M
--- return "pwsh " .. '"' .. opts.file_path_absolute .. '"'
