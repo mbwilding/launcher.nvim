@@ -12,11 +12,14 @@ M.definitions = {
         commands = {
             lsp = function(opts)
                 -- TODO: Find path or get consumer to set a global var with path
-                local home = os.getenv("HOME")
-                local engine_path = home .. "/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
+                local engine_path = os.getenv("HOME") .. "/dev/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh"
+                local project_name = "Hex"
+
                 local cmd = 'set -eax && "' .. engine_path .. '" ' ..
                     '-mode=GenerateClangDatabase -project="' ..
-                    opts.file_path_absolute .. '" -game -engine HexEditor Linux Development'
+                    opts.file_path_absolute .. '" -game -engine ' .. project_name .. 'Editor Linux Development'
+
+                print(cmd)
                 return cmd
                 -- .. ' && cp "'
                 -- .. engine_path
