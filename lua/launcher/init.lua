@@ -7,11 +7,11 @@ local defaults = {
 local last_selected
 local last_opts
 
-local function execute(selected, passed_opts)
-    local opts = vim.tbl_extend("force", defaults, passed_opts or {})
-
+local function execute(selected, opts)
     last_selected = selected
     last_opts = opts
+
+    opts = vim.tbl_extend("force", defaults, opts or {})
 
     local buffer = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
