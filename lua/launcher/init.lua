@@ -9,7 +9,8 @@ local state_file_path = vim.fn.stdpath("data") .. "/launcher.json"
 
 local function get_cwd_key()
     local cwd = vim.fn.getcwd()
-    return cwd:gsub("[/\\%p%s]", "_")
+    local encoded = vim.fn.json_encode(cwd)
+    return string.sub(encoded, 2, -2)
 end
 
 local function load_state()
@@ -39,8 +40,8 @@ end
 local function execute(selected, opts)
     local key = get_cwd_key()
     state[key] = state[key] or {}
-    state[key].last_selected = selected
-    state[key].last_opts = opts
+    state[key].selected = selected
+    state[key].opts = opts
     save_state()
 
     opts = vim.tbl_extend("force", defaults, opts or {})
@@ -258,11 +259,11 @@ local function select_command(file_path_relative, definitions, opts)
                     else
                         error(
                             "Expected a function or string in module '"
-                            .. module
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(command)
+                                .. module
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(command)
                         )
                     end
                 end
@@ -292,9 +293,10 @@ end
 
 function M.rerun(opts)
     load_state()
+
     local key = get_cwd_key()
-    if state[key] and state[key].last_selected then
-        execute(state[key].last_selected, opts or state[key].last_opts)
+    if state[key] and state[key].selected then
+        execute(state[key].selected, opts or state[key].opts)
     else
         vim.notify("Launcher: No previous executions in the current directory", "warn")
     end
