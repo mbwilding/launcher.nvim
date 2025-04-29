@@ -194,11 +194,21 @@ local function select_command(file_path_relative, definitions, opts)
                     if type(command) == "function" then
                         local result = command({
                             file_path_relative = file_path_relative,
+                            file_path_relative_sq = "'" .. file_path_relative .. "'",
+                            file_path_relative_dq = '"' .. file_path_relative .. '"',
                             file_path_absolute = file_path_absolute,
+                            file_path_absolute_sq = "'" .. file_path_absolute .. "'",
+                            file_path_absolute_dq = '"' .. file_path_absolute .. '"',
                             file_directory = file_directory,
+                            file_directory_sq = "'" .. file_directory .. "'",
+                            file_directory_dq = '"' .. file_directory .. '"',
                             file_extension = file_extension,
                             file_name = file_name,
+                            file_name_sq = "'" .. file_name .. "'",
+                            file_name_dq = '"' .. file_name .. '"',
                             file_name_without_extension = file_name_without_extension,
+                            file_name_without_extension_sq = "'" .. file_name_without_extension .. "'",
+                            file_name_without_extension_dq = '"' .. file_name_without_extension .. '"',
                         })
                         table.insert(command_entries, {
                             display = def.icon .. command_name,

@@ -10,7 +10,7 @@ M.definitions = {
         cwd = true,
         commands = {
             run = function(opts)
-                return "go run " .. '"' .. opts.file_path_absolute .. '"'
+                return "go run " .. opts.file_path_absolute_dq
             end,
         },
     },

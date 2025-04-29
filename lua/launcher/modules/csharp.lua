@@ -20,13 +20,13 @@ M.definitions = {
         ft = "csproj",
         commands = {
             run = function(opts)
-                return "dotnet run --interactive --project " .. '"' .. opts.file_path_absolute .. '"'
+                return "dotnet run --interactive --project " .. opts.file_path_absolute_dq
             end,
             build = function(opts)
-                return "dotnet build --interactive --project " .. '"' .. opts.file_path_absolute .. '"'
+                return "dotnet build --interactive --project " .. opts.file_path_absolute_dq
             end,
             restore = function(opts)
-                return "dotnet restore --interactive " .. '"' .. opts.file_path_absolute .. '"'
+                return "dotnet restore --interactive " .. opts.file_path_absolute_dq
             end,
         },
     },
