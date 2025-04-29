@@ -4,12 +4,39 @@ local defaults = {
     close_on_success = true,
 }
 
-local last_selected
-local last_opts
+local state = {
+  last_selected = nil,
+  last_opts = nil,
+}
+
+local state_file_path = vim.fn.stdpath("data") .. "/launcher_state.json"
+
+local function load_state()
+    local file = io.open(state_file_path, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        local ok, decoded = pcall(vim.fn.json_decode, content)
+        if ok and type(decoded) == "table" then
+            state = decoded
+        end
+    end
+end
+
+local function save_state()
+    local file = io.open(state_file_path, "w")
+    if file then
+        file:write(vim.fn.json_encode(state))
+        file:close()
+    else
+        vim.notify("Launcher: Unable to write state data", "error")
+    end
+end
 
 local function execute(selected, opts)
-    last_selected = selected
-    last_opts = opts
+    state.last_selected = selected
+    state.last_opts = opts
+    save_state()
 
     opts = vim.tbl_extend("force", defaults, opts or {})
 
@@ -248,6 +275,8 @@ local function select_command(file_path_relative, definitions, opts)
 end
 
 function M.file(opts)
+    load_state()
+
     local definitions = get_module_definitions()
     local file_types = get_file_types(definitions)
 
@@ -257,8 +286,12 @@ function M.file(opts)
 end
 
 function M.rerun(opts)
-    if last_selected then
-        execute(last_selected, opts or last_opts)
+    load_state()
+
+    if state.last_selected then
+        execute(state.last_selected, opts or state.last_opts)
+    else
+        vim.notify("Launcher: No previous executions", "warn")
     end
 end
 
