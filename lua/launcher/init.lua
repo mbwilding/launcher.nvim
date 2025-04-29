@@ -91,6 +91,7 @@ local function select_file(file_types, on_choice, opts)
         ft = file_types,
         prompt = "File  ",
         source = "files",
+        show_empty = false,
         matcher = {
             fuzzy = true,
             smartcase = true,
@@ -135,6 +136,7 @@ local function open_command_picker(title, items, format_item, on_choice)
         items = finder_items,
         format = Snacks.picker.format.ui_select(nil, #items),
         title = title,
+        show_empty = false,
         layout = {
             preview = false,
             layout = {
