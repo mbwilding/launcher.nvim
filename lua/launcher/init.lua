@@ -1,6 +1,18 @@
 local M = {}
 
-local function execute(selected)
+local defaults = {
+    close_on_success = false,
+}
+
+local last_selected
+local last_opts
+
+local function execute(selected, passed_opts)
+    local opts = vim.tbl_extend("force", defaults, passed_opts or {})
+
+    last_selected = selected
+    last_opts = opts
+
     local buffer = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
     vim.bo[buffer].syntax = nil
@@ -11,10 +23,13 @@ local function execute(selected)
     vim.api.nvim_win_set_buf(win, buffer)
     vim.cmd("startinsert")
 
-    vim.fn.jobstart(selected.command, {
+    local job_opts = {
         term = true,
         curwin = true,
-        on_exit = function(_, exit_code, _)
+    }
+
+    if opts.close_on_success then
+        job_opts.on_exit = function(_, exit_code, _)
             if exit_code == 0 then
                 local win_id = vim.fn.bufwinid(buffer)
                 if win_id ~= -1 then
@@ -23,8 +38,10 @@ local function execute(selected)
                     end)
                 end
             end
-        end,
-    })
+        end
+    end
+
+    vim.fn.jobstart(selected.command, job_opts)
 end
 
 local function get_module_definitions()
@@ -160,7 +177,6 @@ local function is_extension_match(file_extension, extensions)
     end
 end
 
-local last_selected
 local function select_command(file_path_relative, definitions)
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
     local file_directory = vim.fn.fnamemodify(file_path_absolute, ":h")
@@ -198,11 +214,11 @@ local function select_command(file_path_relative, definitions)
                     else
                         error(
                             "Expected a function or string in module '"
-                                .. module
-                                .. "' for command '"
-                                .. command_name
-                                .. "', but got "
-                                .. type(command)
+                            .. module
+                            .. "' for command '"
+                            .. command_name
+                            .. "', but got "
+                            .. type(command)
                         )
                     end
                 end
@@ -214,13 +230,12 @@ local function select_command(file_path_relative, definitions)
         return item.display
     end, function(selected)
         if selected then
-            last_selected = selected
             execute(selected)
         end
     end)
 end
 
-function M.picker()
+function M.picker(opts)
     local definitions = get_module_definitions()
     local file_types = get_file_types(definitions)
 
@@ -229,9 +244,9 @@ function M.picker()
     end)
 end
 
-function M.rerun()
+function M.rerun(opts)
     if last_selected then
-        execute(last_selected)
+        execute(last_selected, opts or last_opts)
     end
 end
 
