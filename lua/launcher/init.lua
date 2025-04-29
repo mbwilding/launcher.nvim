@@ -4,12 +4,13 @@ local defaults = {
     close_on_success = true,
 }
 
-local state = {
-  last_selected = nil,
-  last_opts = nil,
-}
+local state
+local state_file_path = vim.fn.stdpath("data") .. "/launcher.json"
 
-local state_file_path = vim.fn.stdpath("data") .. "/launcher_state.json"
+local function get_cwd_key()
+    local cwd = vim.fn.getcwd()
+    return cwd:gsub("[/\\%p%s]", "_")
+end
 
 local function load_state()
     local file = io.open(state_file_path, "r")
@@ -19,8 +20,10 @@ local function load_state()
         local ok, decoded = pcall(vim.fn.json_decode, content)
         if ok and type(decoded) == "table" then
             state = decoded
+            return
         end
     end
+    state = {}
 end
 
 local function save_state()
@@ -34,8 +37,10 @@ local function save_state()
 end
 
 local function execute(selected, opts)
-    state.last_selected = selected
-    state.last_opts = opts
+    local key = get_cwd_key()
+    state[key] = state[key] or {}
+    state[key].last_selected = selected
+    state[key].last_opts = opts
     save_state()
 
     opts = vim.tbl_extend("force", defaults, opts or {})
@@ -287,11 +292,11 @@ end
 
 function M.rerun(opts)
     load_state()
-
-    if state.last_selected then
-        execute(state.last_selected, opts or state.last_opts)
+    local key = get_cwd_key()
+    if state[key] and state[key].last_selected then
+        execute(state[key].last_selected, opts or state[key].last_opts)
     else
-        vim.notify("Launcher: No previous executions", "warn")
+        vim.notify("Launcher: No previous executions in the current directory", "warn")
     end
 end
 
