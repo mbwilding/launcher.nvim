@@ -85,7 +85,7 @@ local function get_file_types(definitions)
     return file_types
 end
 
-local function select_file(file_types, on_choice)
+local function select_file(file_types, on_choice, opts)
     return Snacks.picker.pick({
         title = "Pick a file",
         ft = file_types,
@@ -177,7 +177,7 @@ local function is_extension_match(file_extension, extensions)
     end
 end
 
-local function select_command(file_path_relative, definitions)
+local function select_command(file_path_relative, definitions, opts)
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
     local file_directory = vim.fn.fnamemodify(file_path_absolute, ":h")
     local file_extension = vim.fn.fnamemodify(file_path_absolute, ":e")
@@ -230,18 +230,18 @@ local function select_command(file_path_relative, definitions)
         return item.display
     end, function(selected)
         if selected then
-            execute(selected)
+            execute(selected, opts)
         end
     end)
 end
 
-function M.picker(opts)
+function M.file(opts)
     local definitions = get_module_definitions()
     local file_types = get_file_types(definitions)
 
     select_file(file_types, function(file)
-        select_command(file, definitions)
-    end)
+        select_command(file, definitions, opts)
+    end, opts)
 end
 
 function M.rerun(opts)

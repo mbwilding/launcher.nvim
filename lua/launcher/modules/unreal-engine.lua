@@ -43,6 +43,7 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
+        cwd = true,
         commands = {
             ["generate-lsp"] = function(opts)
                 check_variables()
@@ -72,7 +73,7 @@ M.definitions = {
                         .. "'\""
                 end
 
-                return '"' .. build_script .. '" ' .. args .. " && " .. cmd_copy
+                return '"' .. build_script .. '" ' .. args -- .. " && " .. cmd_copy
             end,
             build = function(opts)
                 check_variables()
