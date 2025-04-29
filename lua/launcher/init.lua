@@ -1,7 +1,7 @@
 local M = {}
 
 local defaults = {
-    close_on_success = false,
+    close_on_success = true,
 }
 
 local last_selected
