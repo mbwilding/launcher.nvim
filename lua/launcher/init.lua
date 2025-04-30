@@ -38,43 +38,47 @@ local function save_state()
 end
 
 local function execute(selected, opts)
-    local key = get_cwd_key()
-    state[key] = state[key] or {}
-    state[key].selected = selected
-    state[key].opts = opts
-    save_state()
+    if type(selected.command) == "function" then
+        selected.command(selected.args)
+    else
+        local key = get_cwd_key()
+        state[key] = state[key] or {}
+        state[key].selected = selected
+        state[key].opts = opts
+        save_state()
 
-    opts = vim.tbl_extend("force", defaults, opts or {})
+        opts = vim.tbl_extend("force", defaults, opts or {})
 
-    local buffer = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
-    vim.bo[buffer].syntax = nil
-    vim.bo[buffer].modified = false
+        local buffer = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_name(buffer, " " .. selected.display)
+        vim.bo[buffer].syntax = nil
+        vim.bo[buffer].modified = false
 
-    vim.cmd("botright split")
-    local win = vim.api.nvim_get_current_win()
-    vim.api.nvim_win_set_buf(win, buffer)
-    vim.cmd("startinsert")
+        vim.cmd("botright split")
+        local win = vim.api.nvim_get_current_win()
+        vim.api.nvim_win_set_buf(win, buffer)
+        vim.cmd("startinsert")
 
-    local job_opts = {
-        term = true,
-        curwin = true,
-    }
+        local job_opts = {
+            term = true,
+            curwin = true,
+        }
 
-    if opts.close_on_success then
-        job_opts.on_exit = function(_, exit_code, _)
-            if exit_code == 0 then
-                local win_id = vim.fn.bufwinid(buffer)
-                if win_id ~= -1 then
-                    vim.schedule(function()
-                        vim.api.nvim_win_close(win_id, true)
-                    end)
+        if opts.close_on_success then
+            job_opts.on_exit = function(_, exit_code, _)
+                if exit_code == 0 then
+                    local win_id = vim.fn.bufwinid(buffer)
+                    if win_id ~= -1 then
+                        vim.schedule(function()
+                            vim.api.nvim_win_close(win_id, true)
+                        end)
+                    end
                 end
             end
         end
-    end
 
-    vim.fn.jobstart(selected.command, job_opts)
+        vim.fn.jobstart(selected.command, job_opts)
+    end
 end
 
 local function get_module_definitions()
@@ -227,7 +231,7 @@ local function select_command(file_path_relative, definitions, opts)
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, command in pairs(def.commands) do
                     if type(command) == "function" then
-                        local result = command({
+                        local args = {
                             file_path_relative = file_path_relative,
                             file_path_relative_sq = "'" .. file_path_relative .. "'",
                             file_path_relative_dq = '"' .. file_path_relative .. '"',
@@ -244,12 +248,22 @@ local function select_command(file_path_relative, definitions, opts)
                             file_name_without_extension = file_name_without_extension,
                             file_name_without_extension_sq = "'" .. file_name_without_extension .. "'",
                             file_name_without_extension_dq = '"' .. file_name_without_extension .. '"',
-                        })
-                        table.insert(command_entries, {
-                            display = def.icon .. command_name,
-                            command = result,
-                            cwd = cwd,
-                        })
+                        }
+                        if def.lua_only then
+                            table.insert(command_entries, {
+                                display = def.icon .. command_name,
+                                command = command,
+                                cwd = cwd,
+                                args = args,
+                            })
+                        else
+                            local result = command(args)
+                            table.insert(command_entries, {
+                                display = def.icon .. command_name,
+                                command = result,
+                                cwd = cwd,
+                            })
+                        end
                     elseif type(command) == "string" then
                         table.insert(command_entries, {
                             display = def.icon .. command_name,
