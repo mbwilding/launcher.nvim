@@ -10,6 +10,10 @@ M.register_icon = function()
     end
 end
 
+local function not_installed_error()
+    error("Install 'mbwilding/UnrealEngine.nvim'")
+end
+
 M.definitions = {
     {
         icon = icon,
@@ -23,7 +27,7 @@ M.definitions = {
                         uproject_path = opts.file_path_absolute,
                     })
                 else
-                    error("Install 'mbwilding/UnrealEngine.nvim'")
+                    not_installed_error()
                 end
             end,
             build = function(opts)
@@ -33,7 +37,17 @@ M.definitions = {
                         uproject_path = opts.file_path_absolute,
                     })
                 else
-                    error("Install 'mbwilding/UnrealEngine.nvim'")
+                    not_installed_error()
+                end
+            end,
+            clean = function(opts)
+                local ok, unreal_commands = pcall(require, "unrealengine.commands")
+                if ok then
+                    unreal_commands.clean({
+                        uproject_path = opts.file_path_absolute,
+                    })
+                else
+                    not_installed_error()
                 end
             end,
         },
