@@ -32,7 +32,7 @@ M.definitions = {
             generate_lsp = call_command("generate_lsp"),
             build = call_command("build"),
             rebuild = call_command("rebuild"),
-            run = call_command("run"),
+            open = call_command("open"),
             clean = call_command("clean"),
         },
     },
