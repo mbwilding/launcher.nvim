@@ -10,8 +10,17 @@ M.register_icon = function()
     end
 end
 
-local function not_installed_error()
-    error("Install 'mbwilding/UnrealEngine.nvim'")
+local function call_command(cmd)
+    return function(opts)
+        local ok, unreal_commands = pcall(require, "unrealengine.commands")
+        if ok then
+            unreal_commands[cmd]({
+                uproject_path = opts.file_path_absolute,
+            })
+        else
+            error("Install 'mbwilding/UnrealEngine.nvim'")
+        end
+    end
 end
 
 M.definitions = {
@@ -20,36 +29,10 @@ M.definitions = {
         ft = ft,
         lua_only = true,
         commands = {
-            ["generate-lsp"] = function(opts)
-                local ok, unreal_commands = pcall(require, "unrealengine.commands")
-                if ok then
-                    unreal_commands.generate_lsp({
-                        uproject_path = opts.file_path_absolute,
-                    })
-                else
-                    not_installed_error()
-                end
-            end,
-            build = function(opts)
-                local ok, unreal_commands = pcall(require, "unrealengine.commands")
-                if ok then
-                    unreal_commands.build({
-                        uproject_path = opts.file_path_absolute,
-                    })
-                else
-                    not_installed_error()
-                end
-            end,
-            clean = function(opts)
-                local ok, unreal_commands = pcall(require, "unrealengine.commands")
-                if ok then
-                    unreal_commands.clean({
-                        uproject_path = opts.file_path_absolute,
-                    })
-                else
-                    not_installed_error()
-                end
-            end,
+            generate_lsp = call_command("generate_lsp"),
+            build = call_command("build"),
+            rebuild = call_command("rebuild"),
+            clean = call_command("clean"),
         },
     },
 }
