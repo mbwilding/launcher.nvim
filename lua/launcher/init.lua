@@ -100,7 +100,7 @@ local function get_module_definitions()
     return definitions
 end
 
-local function get_file_types(definitions)
+local function get_file_search_parameters(definitions)
     local unique_file_type = {}
     for _, module in pairs(definitions) do
         for _, definition in ipairs(module.definitions) do
@@ -115,17 +115,21 @@ local function get_file_types(definitions)
             end
         end
     end
+
     local file_types = {}
     for file_type in pairs(unique_file_type) do
         table.insert(file_types, file_type)
     end
-    return file_types
+
+    return {
+        file_types = file_types,
+    }
 end
 
-local function select_file(file_types, on_choice, opts)
+local function select_file(file_search_params, on_choice, opts)
     return Snacks.picker.pick({
         title = "Pick a file",
-        ft = file_types,
+        ft = file_search_params.file_types,
         prompt = "File  ",
         source = "files",
         show_empty = false,
@@ -143,8 +147,9 @@ local function select_file(file_types, on_choice, opts)
         sort = {
             fields = { "score:desc", "#text", "idx" },
         },
-        -- (field) transform: (string|fun(item: snacks.picker.finder.Item, ctx: snacks.picker.finder.ctx):boolean|snacks.picker.finder.Item|nil)?
+        -- TODO: (field) transform: (string|fun(item: snacks.picker.finder.Item, ctx: snacks.picker.finder.ctx):boolean|snacks.picker.finder.Item|nil)?
         transform = function(item, ctx)
+            return true
         end,
         actions = {
             confirm = function(picker, item)
@@ -311,9 +316,9 @@ function M.file(opts)
     load_state()
 
     local definitions = get_module_definitions()
-    local file_types = get_file_types(definitions)
+    local file_search_params = get_file_search_parameters(definitions)
 
-    select_file(file_types, function(file)
+    select_file(file_search_params, function(file)
         select_command(file, definitions, opts)
     end, opts)
 end
