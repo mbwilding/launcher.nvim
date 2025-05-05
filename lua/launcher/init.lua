@@ -339,8 +339,8 @@ local function select_command(file_path_relative, modules, opts)
             if definition.file_pattern then
                 ---@type string[]
                 ---@diagnostic disable-next-line: assign-type-mismatch
-                local patterns = type(definition.file_pattern) == "table" and definition.file_pattern or
-                { definition.file_pattern }
+                local patterns = type(definition.file_pattern) == "table" and definition.file_pattern
+                    or { definition.file_pattern }
                 for _, pattern in ipairs(patterns) do
                     local lua_pattern = glob_to_pattern(pattern)
                     if file_name:match(lua_pattern) then
@@ -408,11 +408,11 @@ local function select_command(file_path_relative, modules, opts)
                     else
                         error(
                             "Expected a function or string in module '"
-                            .. module_name
-                            .. "' for command '"
-                            .. command_name
-                            .. "', but got "
-                            .. type(command)
+                                .. module_name
+                                .. "' for command '"
+                                .. command_name
+                                .. "', but got "
+                                .. type(command)
                         )
                     end
                 end
