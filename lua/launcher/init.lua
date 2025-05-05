@@ -271,7 +271,7 @@ local function is_extension_match(file_extension, extensions)
     end
 end
 
-local function select_command(file_path_relative, definitions, file_search_params, opts)
+local function select_command(file_path_relative, definitions, opts)
     opts = vim.tbl_extend("force", defaults, opts or {})
 
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
@@ -307,23 +307,24 @@ local function select_command(file_path_relative, definitions, file_search_param
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, command in pairs(def.commands) do
                     if type(command) == "function" then
+                        ---@type Launcher.File
                         local args = {
-                            file_path_relative = file_path_relative,
-                            file_path_relative_sq = "'" .. file_path_relative .. "'",
-                            file_path_relative_dq = '"' .. file_path_relative .. '"',
-                            file_path_absolute = file_path_absolute,
-                            file_path_absolute_sq = "'" .. file_path_absolute .. "'",
-                            file_path_absolute_dq = '"' .. file_path_absolute .. '"',
-                            file_directory = file_directory,
-                            file_directory_sq = "'" .. file_directory .. "'",
-                            file_directory_dq = '"' .. file_directory .. '"',
-                            file_extension = file_extension,
-                            file_name = file_name,
-                            file_name_sq = "'" .. file_name .. "'",
-                            file_name_dq = '"' .. file_name .. '"',
-                            file_name_without_extension = file_name_without_extension,
-                            file_name_without_extension_sq = "'" .. file_name_without_extension .. "'",
-                            file_name_without_extension_dq = '"' .. file_name_without_extension .. '"',
+                            path_relative = file_path_relative,
+                            path_relative_sq = "'" .. file_path_relative .. "'",
+                            path_relative_dq = '"' .. file_path_relative .. '"',
+                            path_absolute = file_path_absolute,
+                            path_absolute_sq = "'" .. file_path_absolute .. "'",
+                            path_absolute_dq = '"' .. file_path_absolute .. '"',
+                            directory = file_directory,
+                            directory_sq = "'" .. file_directory .. "'",
+                            directory_dq = '"' .. file_directory .. '"',
+                            extension = file_extension,
+                            name = file_name,
+                            name_sq = "'" .. file_name .. "'",
+                            name_dq = '"' .. file_name .. '"',
+                            name_without_extension = file_name_without_extension,
+                            name_without_extension_sq = "'" .. file_name_without_extension .. "'",
+                            name_without_extension_dq = '"' .. file_name_without_extension .. '"',
                         }
                         if def.lua_only then
                             table.insert(command_entries, {
@@ -381,7 +382,7 @@ function M.file(opts)
     local file_search_params = get_file_search_params(definitions)
 
     select_file(file_search_params, function(file)
-        select_command(file, definitions, file_search_params, opts)
+        select_command(file, definitions, opts)
     end, opts)
 end
 

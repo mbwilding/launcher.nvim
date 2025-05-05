@@ -1,19 +1,17 @@
-local M = {}
-
-local icon = " "
-local ft = "go"
-
-M.definitions = {
-    {
-        icon = icon,
-        ft = ft,
-        cwd = true,
-        commands = {
-            run = function(opts)
-                return "go run " .. opts.file_path_absolute_dq
-            end,
+---@type Launcher.Module
+local M = {
+    definitions = {
+        {
+            icon = " ",
+            ft = "go",
+            cwd = true,
+            commands = {
+                run = function(file)
+                    return "go run " .. file.path_absolute_dq
+                end,
+            },
         },
-    },
+    }
 }
 
 return M

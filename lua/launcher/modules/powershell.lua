@@ -1,18 +1,17 @@
-local M = {}
-
-local ft = "ps1"
-
-M.definitions = {
-    {
-        icon = "󰨊 ",
-        ft = ft,
-        cwd = true,
-        commands = {
-            run = function(opts)
-                return "pwsh " .. opts.file_path_absolute_dq
-            end,
+---@type Launcher.Module
+local M = {
+    definitions = {
+        {
+            icon = "󰨊 ",
+            ft = "ps1",
+            cwd = true,
+            commands = {
+                run = function(file)
+                    return "pwsh " .. file.path_absolute_dq
+                end,
+            },
         },
-    },
+    }
 }
 
 return M
