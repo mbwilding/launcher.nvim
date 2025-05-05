@@ -1,0 +1,4 @@
+--- The options for launcher.nvim
+---@class Launcher.Opts
+---@field close_on_success boolean|nil Closes the command split if it's a success
+---@field custom_dir string|nil The path to your local modules

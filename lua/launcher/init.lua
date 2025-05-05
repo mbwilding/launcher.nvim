@@ -1,5 +1,7 @@
 local M = {}
 
+--- Default options
+--- @type Launcher.Opts
 local defaults = {
     close_on_success = true,
     custom_dir = nil,
@@ -371,6 +373,7 @@ local function select_command(file_path_relative, definitions, file_search_param
     end)
 end
 
+--- @param opts Launcher.Opts Options table
 function M.file(opts)
     load_state()
 
@@ -382,6 +385,7 @@ function M.file(opts)
     end, opts)
 end
 
+--- @param opts Launcher.Opts Options table
 function M.rerun(opts)
     load_state()
 
