@@ -100,36 +100,44 @@ local function get_module_definitions()
     return definitions
 end
 
-local function get_file_search_parameters(definitions)
-    local unique_file_type = {}
+local function get_file_search_params(definitions)
+    local result = {}
+
     for _, module in pairs(definitions) do
         for _, definition in ipairs(module.definitions) do
             if definition.ft then
-                if type(definition.ft) == "table" then
-                    for _, ft in ipairs(definition.ft) do
-                        unique_file_type[ft] = true
+                local fts = (type(definition.ft) == "table") and definition.ft or { definition.ft }
+                for _, ft in ipairs(fts) do
+                    if definition.file_pattern then
+                        local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern or { definition.file_pattern }
+                        if result[ft] == nil or result[ft] == false then
+                            result[ft] = {}
+                        end
+                        for _, pattern in ipairs(patterns) do
+                            table.insert(result[ft], pattern)
+                        end
+                    else
+                        if result[ft] == nil then
+                            result[ft] = {}
+                        end
                     end
-                else
-                    unique_file_type[definition.ft] = true
                 end
             end
         end
     end
 
-    local file_types = {}
-    for file_type in pairs(unique_file_type) do
-        table.insert(file_types, file_type)
-    end
-
-    return {
-        file_types = file_types,
-    }
+    return result
 end
 
 local function select_file(file_search_params, on_choice, opts)
+    local file_types = {}
+    for key, _ in pairs(file_search_params) do
+        table.insert(file_types, key)
+    end
+
     return Snacks.picker.pick({
         title = "Pick a file",
-        ft = file_search_params.file_types,
+        ft = file_types,
         prompt = "File  ",
         source = "files",
         show_empty = false,
@@ -147,9 +155,22 @@ local function select_file(file_search_params, on_choice, opts)
         sort = {
             fields = { "score:desc", "#text", "idx" },
         },
-        -- TODO: (field) transform: (string|fun(item: snacks.picker.finder.Item, ctx: snacks.picker.finder.ctx):boolean|snacks.picker.finder.Item|nil)?
         transform = function(item, ctx)
-            return true
+            local file_type = vim.fn.fnamemodify(item.file, ":e")
+            local patterns = file_search_params[file_type]
+
+            if next(patterns) == nil then
+                return true -- No specific patterns, so show the file
+            end
+
+            local file_name_with_ext = vim.fn.fnamemodify(item.file, ":t")
+            for _, pattern in ipairs(patterns) do
+                if file_name_with_ext:find(pattern, 1, true) then
+                    return true -- The file matches one of the patterns, so show it
+                end
+            end
+
+            return false -- None of the patterns matched, so don't show the file
         end,
         actions = {
             confirm = function(picker, item)
@@ -316,7 +337,7 @@ function M.file(opts)
     load_state()
 
     local definitions = get_module_definitions()
-    local file_search_params = get_file_search_parameters(definitions)
+    local file_search_params = get_file_search_params(definitions)
 
     select_file(file_search_params, function(file)
         select_command(file, definitions, opts)
