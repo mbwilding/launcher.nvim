@@ -2,6 +2,7 @@ local M = {}
 
 local defaults = {
     close_on_success = true,
+    custom_dir = nil,
 }
 
 local state
@@ -81,12 +82,8 @@ local function execute(selected, opts)
     end
 end
 
-local function get_module_definitions()
-    local definitions = {}
-    local source = debug.getinfo(1, "S").source:sub(2)
-    local current_dir = source:match("^(.*[/\\])")
-    local base_path = current_dir .. "modules"
-    local files = vim.fn.globpath(base_path, "*.lua", false, true)
+local function process_module_directory(directory, definitions)
+    local files = vim.fn.globpath(directory, "*.lua", false, true)
     for _, file in ipairs(files) do
         local lua_module = dofile(file)
         if lua_module.register_icon and type(lua_module.register_icon) == "function" then
@@ -97,6 +94,20 @@ local function get_module_definitions()
             definitions[module_name] = lua_module
         end
     end
+end
+
+local function get_module_definitions(opts)
+    local definitions = {}
+    local source = debug.getinfo(1, "S").source:sub(2)
+    local current_dir = source:match("^(.*[/\\])")
+    local base_path = current_dir .. "modules"
+
+    process_module_directory(base_path, definitions)
+
+    if opts and opts.custom_dir then
+        process_module_directory(opts.custom_dir, definitions)
+    end
+
     return definitions
 end
 
@@ -363,7 +374,7 @@ end
 function M.file(opts)
     load_state()
 
-    local definitions = get_module_definitions()
+    local definitions = get_module_definitions(opts)
     local file_search_params = get_file_search_params(definitions)
 
     select_file(file_search_params, function(file)
