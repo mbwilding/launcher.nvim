@@ -109,7 +109,8 @@ local function get_file_search_params(definitions)
                 local fts = (type(definition.ft) == "table") and definition.ft or { definition.ft }
                 for _, ft in ipairs(fts) do
                     if definition.file_pattern then
-                        local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern or { definition.file_pattern }
+                        local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern or
+                        { definition.file_pattern }
                         if result[ft] == nil or result[ft] == false then
                             result[ft] = {}
                         end
@@ -127,6 +128,13 @@ local function get_file_search_params(definitions)
     end
 
     return result
+end
+
+local function glob_to_pattern(glob)
+    -- Escape magic characters, replacing "*" with ".*"
+    local pattern = glob:gsub("([^%w])", "%%%1")
+    pattern = pattern:gsub("%%%*", ".*")
+    return "^" .. pattern .. "$"
 end
 
 local function select_file(file_search_params, on_choice, opts)
@@ -165,7 +173,8 @@ local function select_file(file_search_params, on_choice, opts)
 
             local file_name_with_ext = vim.fn.fnamemodify(item.file, ":t")
             for _, pattern in ipairs(patterns) do
-                if file_name_with_ext:find(pattern, 1, true) then
+                local lua_pattern = glob_to_pattern(pattern)
+                if file_name_with_ext:match(lua_pattern) then
                     return true -- The file matches one of the patterns, so show it
                 end
             end

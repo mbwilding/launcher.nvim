@@ -13,10 +13,7 @@ M.definitions = {
     {
         icon = icon,
         ft = ft,
-        file_pattern = {
-            "Pulumi.yaml",
-            -- "Pulumi.*.yaml",
-        },
+        file_pattern = "Pulumi.yaml",
         cwd = true,
         close_on_success = false,
         commands = {
