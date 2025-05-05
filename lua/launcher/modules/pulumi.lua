@@ -38,9 +38,9 @@ M.definitions = {
         cwd = true,
         close_on_success = false,
         commands = {
-            up = call_command_root("up"),
-            ["up skip"] = call_command_root("up --skip-preview"),
-            preview = call_command_root("preview"),
+            up = call_command_stack("up"),
+            ["up skip"] = call_command_stack("up --skip-preview"),
+            preview = call_command_stack("preview"),
         },
     },
 }
