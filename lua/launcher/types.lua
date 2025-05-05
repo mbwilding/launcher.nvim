@@ -25,10 +25,12 @@
 --- Module Definition
 ---@class Launcher.Definition
 ---@field icon? string Icon
----@field ft string File type
----@field cwd? boolean Run command in the file's directory
+---@field ft string|string[] File type
+---@field cd? boolean Run command in the file's directory
 ---@field lua_only? boolean If the command is lua only, no returned shell command
+---@field file_pattern? string File pattern that filters the commands to specific files
 ---@field commands table<string, (string | fun(file: Launcher.File): string|nil)> Commands, mapped by name to a string or a function
+---@field close_on_success? boolean Closes the command split if it's a success
 
 --- Module Definitions
 ---@alias Launcher.Definitions Launcher.Definition[]
@@ -37,3 +39,25 @@
 ---@class Launcher.Module
 ---@field definitions Launcher.Definitions
 ---@field register_icon? fun() Function to register the icon
+
+--- Module Map
+---@alias Launcher.ModuleMap table<string, Launcher.Module>
+
+--- Selected
+---@class Launcher.Command
+---@field display string Display string
+---@field command? string|fun() Command
+---@field args? string|Launcher.File Command arguments
+---@field cd string|fun() Directory to run in
+---@field close_on_success? boolean Closes the split on command success, when true
+
+--- State
+---@class Launcher.State
+---@field selected Launcher.Command
+---@field opts Launcher.Opts
+
+--- States
+---@alias Launcher.States table<string, Launcher.State>
+
+--- Search
+---@alias Launcher.Search table<string, table<string>>

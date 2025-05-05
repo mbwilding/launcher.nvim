@@ -6,7 +6,7 @@ local M = {
         {
             icon = icon,
             ft = "sln",
-            cwd = true,
+            cd = true,
             commands = {
                 run = "dotnet run --interactive --no-restore --no-build",
                 build = "dotnet build --interactive --no-restore",
@@ -30,7 +30,7 @@ local M = {
                 end,
             },
         },
-    }
+    },
 }
 
 return M

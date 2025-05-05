@@ -4,14 +4,14 @@ local M = {
         {
             icon = " ",
             ft = "fish",
-            cwd = true,
+            cd = true,
             commands = {
                 run = function(file)
                     return "fish " .. file.path_absolute_dq
                 end,
             },
         },
-    }
+    },
 }
 
 return M

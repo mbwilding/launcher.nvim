@@ -37,7 +37,7 @@ local M = {
                 clean = call_command("clean"),
             },
         },
-    }
+    },
 }
 
 return M

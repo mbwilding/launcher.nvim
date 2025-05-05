@@ -13,7 +13,7 @@ local M = {
                 ["build-run"] = "zig build run",
             },
         },
-    }
+    },
 }
 
 return M

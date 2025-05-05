@@ -1,13 +1,14 @@
 local M = {}
 
 --- Default options
---- @type Launcher.Opts
+---@type Launcher.Opts
 local defaults = {
     close_on_success = true,
     custom_dir = nil,
 }
 
-local state
+---@type Launcher.States
+local states
 local state_file_path = vim.fn.stdpath("data") .. "/launcher.json"
 
 local function get_cwd_key()
@@ -23,17 +24,18 @@ local function load_state()
         file:close()
         local ok, decoded = pcall(vim.fn.json_decode, content)
         if ok and type(decoded) == "table" then
-            state = decoded
+            states = decoded
             return
         end
     end
-    state = {}
+
+    states = {}
 end
 
 local function save_state()
     local file = io.open(state_file_path, "w")
     if file then
-        file:write(vim.fn.json_encode(state))
+        file:write(vim.fn.json_encode(states))
         file:close()
     else
         vim.notify("Launcher: Unable to write state data", "error")
@@ -45,9 +47,9 @@ local function execute(selected, opts)
         selected.command(selected.args)
     else
         local key = get_cwd_key()
-        state[key] = state[key] or {}
-        state[key].selected = selected
-        state[key].opts = opts
+        states[key] = states[key] or {}
+        states[key].selected = selected
+        states[key].opts = opts
         save_state()
 
         opts = vim.tbl_extend("force", defaults, opts or {})
@@ -65,6 +67,7 @@ local function execute(selected, opts)
         local job_opts = {
             term = true,
             curwin = true,
+            cwd = selected.cd,
         }
 
         if selected.close_on_success then
@@ -84,49 +87,64 @@ local function execute(selected, opts)
     end
 end
 
-local function process_module_directory(directory, definitions)
+--- Process module directory
+---@param directory string
+---@param modules Launcher.ModuleMap
+local function process_module_directory(directory, modules)
     local files = vim.fn.globpath(directory, "*.lua", false, true)
     for _, file in ipairs(files) do
+        ---@type Launcher.Module
         local lua_module = dofile(file)
         if lua_module.register_icon and type(lua_module.register_icon) == "function" then
             lua_module.register_icon()
         end
+        ---@type string
         local module_name = file:match("([^/\\]+)%.lua$")
         if module_name and lua_module.definitions then
-            definitions[module_name] = lua_module
+            modules[module_name] = lua_module
         end
     end
 end
 
+--- Get module definitions
+---@param opts Launcher.Opts
+---@return Launcher.ModuleMap
 local function get_module_definitions(opts)
-    local definitions = {}
+    ---@type Launcher.ModuleMap
+    local modules = {}
     local source = debug.getinfo(1, "S").source:sub(2)
     local current_dir = source:match("^(.*[/\\])")
     local base_path = current_dir .. "modules"
 
-    process_module_directory(base_path, definitions)
+    process_module_directory(base_path, modules)
 
     if opts and opts.custom_dir then
-        process_module_directory(opts.custom_dir, definitions)
+        process_module_directory(opts.custom_dir, modules)
     end
 
-    return definitions
+    return modules
 end
 
-local function get_file_search_params(definitions)
+--- Get file seach params
+---@param modules Launcher.ModuleMap
+---@return Launcher.Search
+local function get_file_search_params(modules)
+    ---@type Launcher.Search
     local result = {}
 
-    for _, module in pairs(definitions) do
+    for _, module in pairs(modules) do
         for _, definition in ipairs(module.definitions) do
             if definition.ft then
                 local fts = (type(definition.ft) == "table") and definition.ft or { definition.ft }
+                ---@diagnostic disable-next-line: param-type-mismatch
                 for _, ft in ipairs(fts) do
                     if definition.file_pattern then
-                        local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern or
-                            { definition.file_pattern }
+                        local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern
+                            or { definition.file_pattern }
                         if result[ft] == nil or result[ft] == false then
                             result[ft] = {}
                         end
+                        ---@diagnostic disable-next-line: param-type-mismatch
                         for _, pattern in ipairs(patterns) do
                             table.insert(result[ft], pattern)
                         end
@@ -143,6 +161,9 @@ local function get_file_search_params(definitions)
     return result
 end
 
+--- Glob to lua pattern
+---@param glob string
+---@return string
 local function glob_to_pattern(glob)
     -- Escape magic characters, replacing "*" with ".*"
     local pattern = glob:gsub("([^%w])", "%%%1")
@@ -150,6 +171,10 @@ local function glob_to_pattern(glob)
     return "^" .. pattern .. "$"
 end
 
+--- Should show result
+---@param file_path string
+---@param file_search_params table<string, table<string>>
+---@return boolean
 local function should_show_result(file_path, file_search_params)
     local file_type = vim.fn.fnamemodify(file_path, ":e")
     local patterns = file_search_params[file_type]
@@ -169,7 +194,10 @@ local function should_show_result(file_path, file_search_params)
     return false -- None of the patterns matched, so don't show the file
 end
 
-local function select_file(file_search_params, on_choice, opts)
+--- Select file
+---@param file_search_params table<string, table<string>>
+---@param on_choice fun(file: any)
+local function select_file(file_search_params, on_choice)
     local file_types = {}
     for key, _ in pairs(file_search_params) do
         table.insert(file_types, key)
@@ -195,7 +223,7 @@ local function select_file(file_search_params, on_choice, opts)
         sort = {
             fields = { "score:desc", "#text", "idx" },
         },
-        transform = function(item, ctx)
+        transform = function(item, _)
             return should_show_result(item.file, file_search_params)
         end,
         actions = {
@@ -209,16 +237,24 @@ local function select_file(file_search_params, on_choice, opts)
     })
 end
 
+--- Open command picker
+---@param title string
+---@param items Launcher.Command[]
+---@param format_item fun(item: Launcher.Command): string
+---@param on_choice fun(items?: any, idx: any)
 local function open_command_picker(title, items, format_item, on_choice)
+    ---@type snacks.picker.finder.Item[]
     local finder_items = {}
     for idx, item in ipairs(items) do
         local text = (format_item or tostring)(item)
-        table.insert(finder_items, {
+        ---@type snacks.picker.finder.Item
+        local finder_item = {
             formatted = text,
             text = idx .. " " .. text,
             item = item,
             idx = idx,
-        })
+        }
+        table.insert(finder_items, finder_item)
     end
 
     local completed = false
@@ -230,6 +266,7 @@ local function open_command_picker(title, items, format_item, on_choice)
         title = title,
         show_empty = false,
         layout = {
+            ---@diagnostic disable-next-line: assign-type-mismatch
             preview = false,
             layout = {
                 height = 0,
@@ -258,7 +295,11 @@ local function open_command_picker(title, items, format_item, on_choice)
     })
 end
 
-local function is_extension_match(file_extension, extensions)
+--- Is extension a match
+---@param file_extension string
+---@param extensions string|string[]
+---@return boolean
+local function is_extension_a_match(file_extension, extensions)
     if type(extensions) == "table" then
         for _, ext in ipairs(extensions) do
             if file_extension == ext then
@@ -271,7 +312,11 @@ local function is_extension_match(file_extension, extensions)
     end
 end
 
-local function select_command(file_path_relative, definitions, opts)
+--- Select command
+---@param file_path_relative string
+---@param modules Launcher.ModuleMap
+---@param opts Launcher.ModuleMap
+local function select_command(file_path_relative, modules, opts)
     opts = vim.tbl_extend("force", defaults, opts or {})
 
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
@@ -280,18 +325,22 @@ local function select_command(file_path_relative, definitions, opts)
     local file_name_without_extension = vim.fn.fnamemodify(file_path_absolute, ":t:r")
     local file_name = vim.fn.fnamemodify(file_path_absolute, ":t")
 
+    ---@type Launcher.Command[]
     local command_entries = {}
 
-    for _, definition in pairs(definitions) do
-        for module, def in ipairs(definition.definitions) do
-            local close_on_success = def.close_on_success
+    for _, module in pairs(modules) do
+        for module_name, definition in ipairs(module.definitions) do
+            local close_on_success = definition.close_on_success
             if close_on_success == nil then
                 close_on_success = opts.close_on_success
             end
 
             local applicable = false
-            if def.file_pattern then
-                local patterns = type(def.file_pattern) == "table" and def.file_pattern or { def.file_pattern }
+            if definition.file_pattern then
+                ---@type string[]
+                ---@diagnostic disable-next-line: assign-type-mismatch
+                local patterns = type(definition.file_pattern) == "table" and definition.file_pattern or
+                { definition.file_pattern }
                 for _, pattern in ipairs(patterns) do
                     local lua_pattern = glob_to_pattern(pattern)
                     if file_name:match(lua_pattern) then
@@ -300,12 +349,12 @@ local function select_command(file_path_relative, definitions, opts)
                     end
                 end
             else
-                applicable = is_extension_match(file_extension, def.ft)
+                applicable = is_extension_a_match(file_extension, definition.ft)
             end
 
             if applicable then
-                local cwd = def.cwd and file_directory or vim.fn.getcwd()
-                for command_name, command in pairs(def.commands) do
+                local cd = definition.cd and file_directory or vim.fn.getcwd()
+                for command_name, command in pairs(definition.commands) do
                     if type(command) == "function" then
                         ---@type Launcher.File
                         local args = {
@@ -326,34 +375,40 @@ local function select_command(file_path_relative, definitions, opts)
                             name_without_extension_sq = "'" .. file_name_without_extension .. "'",
                             name_without_extension_dq = '"' .. file_name_without_extension .. '"',
                         }
-                        if def.lua_only then
-                            table.insert(command_entries, {
-                                display = def.icon .. command_name,
+                        if definition.lua_only then
+                            ---@type Launcher.Command
+                            local cmd = {
+                                display = definition.icon .. command_name,
                                 command = command,
-                                cwd = cwd,
+                                cd = cd,
                                 args = args,
                                 close_on_success = close_on_success,
-                            })
+                            }
+                            table.insert(command_entries, cmd)
                         else
                             local result = command(args)
-                            table.insert(command_entries, {
-                                display = def.icon .. command_name,
+                            ---@type Launcher.Command
+                            local cmd = {
+                                display = definition.icon .. command_name,
                                 command = result,
-                                cwd = cwd,
+                                cd = cd,
                                 close_on_success = close_on_success,
-                            })
+                            }
+                            table.insert(command_entries, cmd)
                         end
                     elseif type(command) == "string" then
-                        table.insert(command_entries, {
-                            display = def.icon .. command_name,
+                        ---@type Launcher.Command
+                        local cmd = {
+                            display = definition.icon .. command_name,
                             command = command,
-                            cwd = cwd,
+                            cd = cd,
                             close_on_success = close_on_success,
-                        })
+                        }
+                        table.insert(command_entries, cmd)
                     else
                         error(
                             "Expected a function or string in module '"
-                            .. module
+                            .. module_name
                             .. "' for command '"
                             .. command_name
                             .. "', but got "
@@ -374,25 +429,27 @@ local function select_command(file_path_relative, definitions, opts)
     end)
 end
 
---- @param opts Launcher.Opts Options table
+--- File picker
+---@param opts Launcher.Opts Options table
 function M.file(opts)
     load_state()
 
-    local definitions = get_module_definitions(opts)
-    local file_search_params = get_file_search_params(definitions)
+    local modules = get_module_definitions(opts)
+    local file_search_params = get_file_search_params(modules)
 
     select_file(file_search_params, function(file)
-        select_command(file, definitions, opts)
-    end, opts)
+        select_command(file, modules, opts)
+    end)
 end
 
---- @param opts Launcher.Opts Options table
+--- Re-run
+---@param opts Launcher.Opts Options table
 function M.rerun(opts)
     load_state()
 
     local key = get_cwd_key()
-    if state[key] and state[key].selected then
-        execute(state[key].selected, opts or state[key].opts)
+    if states[key] and states[key].selected then
+        execute(states[key].selected, opts or states[key].opts)
     else
         vim.notify("Launcher: No previous executions in the current directory", "warn")
     end

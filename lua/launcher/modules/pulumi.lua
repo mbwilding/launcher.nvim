@@ -25,7 +25,7 @@ local M = {
             icon = icon,
             ft = ft,
             file_pattern = "Pulumi.yaml",
-            cwd = true,
+            cd = true,
             close_on_success = false,
             commands = {
                 install = call_command_root("install"),
@@ -39,7 +39,7 @@ local M = {
             icon = icon,
             ft = ft,
             file_pattern = "Pulumi.*.yaml",
-            cwd = true,
+            cd = true,
             close_on_success = false,
             commands = {
                 up = call_command_stack("up"),
@@ -47,7 +47,7 @@ local M = {
                 preview = call_command_stack("preview"),
             },
         },
-    }
+    },
 }
 
 return M
