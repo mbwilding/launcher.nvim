@@ -110,7 +110,7 @@ local function get_file_search_params(definitions)
                 for _, ft in ipairs(fts) do
                     if definition.file_pattern then
                         local patterns = (type(definition.file_pattern) == "table") and definition.file_pattern or
-                        { definition.file_pattern }
+                            { definition.file_pattern }
                         if result[ft] == nil or result[ft] == false then
                             result[ft] = {}
                         end
@@ -135,6 +135,25 @@ local function glob_to_pattern(glob)
     local pattern = glob:gsub("([^%w])", "%%%1")
     pattern = pattern:gsub("%%%*", ".*")
     return "^" .. pattern .. "$"
+end
+
+local function should_show_result(file_path, file_search_params)
+    local file_type = vim.fn.fnamemodify(file_path, ":e")
+    local patterns = file_search_params[file_type]
+
+    if next(patterns) == nil then
+        return true -- No specific patterns, so show the file
+    end
+
+    local file_name_with_ext = vim.fn.fnamemodify(file_path, ":t")
+    for _, pattern in ipairs(patterns) do
+        local lua_pattern = glob_to_pattern(pattern)
+        if file_name_with_ext:match(lua_pattern) then
+            return true -- The file matches one of the patterns, so show it
+        end
+    end
+
+    return false -- None of the patterns matched, so don't show the file
 end
 
 local function select_file(file_search_params, on_choice, opts)
@@ -164,22 +183,7 @@ local function select_file(file_search_params, on_choice, opts)
             fields = { "score:desc", "#text", "idx" },
         },
         transform = function(item, ctx)
-            local file_type = vim.fn.fnamemodify(item.file, ":e")
-            local patterns = file_search_params[file_type]
-
-            if next(patterns) == nil then
-                return true -- No specific patterns, so show the file
-            end
-
-            local file_name_with_ext = vim.fn.fnamemodify(item.file, ":t")
-            for _, pattern in ipairs(patterns) do
-                local lua_pattern = glob_to_pattern(pattern)
-                if file_name_with_ext:match(lua_pattern) then
-                    return true -- The file matches one of the patterns, so show it
-                end
-            end
-
-            return false -- None of the patterns matched, so don't show the file
+            return should_show_result(item.file, file_search_params)
         end,
         actions = {
             confirm = function(picker, item)
@@ -271,7 +275,22 @@ local function select_command(file_path_relative, definitions, file_search_param
             if close_on_success == nil then
                 close_on_success = opts.close_on_success
             end
-            if is_extension_match(file_extension, def.ft) then
+
+            local applicable = false
+            if def.file_pattern then
+                local patterns = type(def.file_pattern) == "table" and def.file_pattern or { def.file_pattern }
+                for _, pattern in ipairs(patterns) do
+                    local lua_pattern = glob_to_pattern(pattern)
+                    if file_name:match(lua_pattern) then
+                        applicable = true
+                        break
+                    end
+                end
+            else
+                applicable = is_extension_match(file_extension, def.ft)
+            end
+
+            if applicable then
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, command in pairs(def.commands) do
                     if type(command) == "function" then
