@@ -64,7 +64,7 @@ local function execute(selected, opts)
             curwin = true,
         }
 
-        if opts.close_on_success then
+        if selected.close_on_success then
             job_opts.on_exit = function(_, exit_code, _)
                 if exit_code == 0 then
                     local win_id = vim.fn.bufwinid(buffer)
@@ -143,6 +143,9 @@ local function select_file(file_types, on_choice, opts)
         sort = {
             fields = { "score:desc", "#text", "idx" },
         },
+        -- (field) transform: (string|fun(item: snacks.picker.finder.Item, ctx: snacks.picker.finder.ctx):boolean|snacks.picker.finder.Item|nil)?
+        transform = function(item, ctx)
+        end,
         actions = {
             confirm = function(picker, item)
                 picker:close()
@@ -217,6 +220,8 @@ local function is_extension_match(file_extension, extensions)
 end
 
 local function select_command(file_path_relative, definitions, opts)
+    opts = vim.tbl_extend("force", defaults, opts or {})
+
     local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
     local file_directory = vim.fn.fnamemodify(file_path_absolute, ":h")
     local file_extension = vim.fn.fnamemodify(file_path_absolute, ":e")
@@ -227,6 +232,11 @@ local function select_command(file_path_relative, definitions, opts)
 
     for _, definition in pairs(definitions) do
         for module, def in ipairs(definition.definitions) do
+            local close_on_success = def.close_on_success
+            if close_on_success == nil then
+                close_on_success = opts.close_on_success
+            end
+            print(close_on_success)
             if is_extension_match(file_extension, def.ft) then
                 local cwd = def.cwd and file_directory or vim.fn.getcwd()
                 for command_name, command in pairs(def.commands) do
@@ -255,6 +265,7 @@ local function select_command(file_path_relative, definitions, opts)
                                 command = command,
                                 cwd = cwd,
                                 args = args,
+                                close_on_success = close_on_success,
                             })
                         else
                             local result = command(args)
@@ -262,6 +273,7 @@ local function select_command(file_path_relative, definitions, opts)
                                 display = def.icon .. command_name,
                                 command = result,
                                 cwd = cwd,
+                                close_on_success = close_on_success,
                             })
                         end
                     elseif type(command) == "string" then
@@ -269,15 +281,16 @@ local function select_command(file_path_relative, definitions, opts)
                             display = def.icon .. command_name,
                             command = command,
                             cwd = cwd,
+                            close_on_success = close_on_success,
                         })
                     else
                         error(
                             "Expected a function or string in module '"
-                                .. module
-                                .. "' for command '"
-                                .. command_name
-                                .. "', but got "
-                                .. type(command)
+                            .. module
+                            .. "' for command '"
+                            .. command_name
+                            .. "', but got "
+                            .. type(command)
                         )
                     end
                 end

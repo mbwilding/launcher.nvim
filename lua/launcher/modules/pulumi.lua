@@ -1,8 +1,7 @@
 local M = {}
 
 local icon = " "
-local file = "yaml"
--- TODO: Filter for `Pulumi.yaml`
+local ft = "yaml"
 
 local function call_command(args)
     return function(opts)
@@ -13,7 +12,7 @@ end
 M.definitions = {
     {
         icon = icon,
-        ft = file,
+        ft = ft,
         cwd = true,
         close_on_success = false,
         commands = {
