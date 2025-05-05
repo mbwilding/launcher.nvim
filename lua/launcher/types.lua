@@ -46,7 +46,7 @@
 --- Selected
 ---@class Launcher.Command
 ---@field display string Display string
----@field command? string|fun() Command
+---@field command? string|fun(args: string|Launcher.File) Command
 ---@field args? string|Launcher.File Command arguments
 ---@field cd string|fun() Directory to run in
 ---@field close_on_success? boolean Closes the split on command success, when true
