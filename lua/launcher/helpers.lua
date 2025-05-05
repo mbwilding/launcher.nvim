@@ -339,7 +339,7 @@ function M.select_command(file_path_relative, modules, opts)
     local command_entries = {}
 
     for _, module in pairs(modules) do
-        for module_name, definition in ipairs(module.definitions) do
+        for module_idx, definition in ipairs(module.definitions) do
             local close_on_success = definition.close_on_success
             if close_on_success == nil then
                 close_on_success = opts.close_on_success
@@ -417,8 +417,8 @@ function M.select_command(file_path_relative, modules, opts)
                         table.insert(command_entries, cmd)
                     else
                         error(
-                            "Expected a function or string in module '"
-                                .. module_name
+                            "Expected a function or string in module index '"
+                                .. module_idx
                                 .. "' for command '"
                                 .. command_name
                                 .. "', but got "
