@@ -322,6 +322,31 @@ function M.is_extension_a_match(file_extension, extensions)
     end
 end
 
+--- Wraps the string in a string
+---@param in_string string The string to wrap
+---@param wrap_string string The wrap string
+---@return string
+function M.wrap(in_string, wrap_string)
+    if in_string == nil or in_string == "" then
+        return ""
+    end
+    return wrap_string .. in_string .. wrap_string
+end
+
+--- Wraps the string in '
+---@param in_string string The string to wrap
+---@return string
+function M.wrap_sq(in_string)
+    return M.wrap(in_string, "'")
+end
+
+--- Wraps the string in "
+---@param in_string string The string to wrap
+---@return string
+function M.wrap_dq(in_string)
+    return M.wrap(in_string, '"')
+end
+
 --- Select command
 ---@param file_path_relative string
 ---@param modules Launcher.ModuleMap
@@ -369,21 +394,21 @@ function M.select_command(file_path_relative, modules, opts)
                         ---@type Launcher.File
                         local args = {
                             path_relative = file_path_relative,
-                            path_relative_sq = "'" .. file_path_relative .. "'",
-                            path_relative_dq = '"' .. file_path_relative .. '"',
+                            path_relative_sq = M.wrap_sq(file_path_relative),
+                            path_relative_dq = M.wrap_dq(file_path_relative),
                             path_absolute = file_path_absolute,
-                            path_absolute_sq = "'" .. file_path_absolute .. "'",
-                            path_absolute_dq = '"' .. file_path_absolute .. '"',
+                            path_absolute_sq = M.wrap_sq(file_path_absolute),
+                            path_absolute_dq = M.wrap_dq(file_path_absolute),
                             directory = file_directory,
-                            directory_sq = "'" .. file_directory .. "'",
-                            directory_dq = '"' .. file_directory .. '"',
+                            directory_sq = M.wrap_sq(file_directory),
+                            directory_dq = M.wrap_dq(file_directory),
                             extension = file_extension,
                             name = file_name,
-                            name_sq = "'" .. file_name .. "'",
-                            name_dq = '"' .. file_name .. '"',
+                            name_sq = M.wrap_sq(file_name),
+                            name_dq = M.wrap_dq(file_name),
                             name_without_extension = file_name_without_extension,
-                            name_without_extension_sq = "'" .. file_name_without_extension .. "'",
-                            name_without_extension_dq = '"' .. file_name_without_extension .. '"',
+                            name_without_extension_sq = M.wrap_sq(file_name_without_extension),
+                            name_without_extension_dq = M.wrap_dq(file_name_without_extension),
                         }
                         if definition.lua_only then
                             ---@type Launcher.Command
