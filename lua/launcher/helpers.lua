@@ -374,84 +374,50 @@ function M.select_command(file_path_relative, modules, opts)
                 close_on_success = opts.close_on_success
             end
 
-            local applicable = false
-            if definition.file_pattern then
-                ---@type string[]
-                ---@diagnostic disable-next-line: assign-type-mismatch
-                local patterns = type(definition.file_pattern) == "table" and definition.file_pattern
-                    or { definition.file_pattern }
-                for _, pattern in ipairs(patterns) do
-                    local lua_pattern = M.glob_to_pattern(pattern)
-                    if file_name:match(lua_pattern) then
-                        applicable = true
-                        break
+            if not definition.required_exe or (vim.fn.executable(definition.required_exe) == 1) then
+                local applicable = false
+                if definition.file_pattern then
+                    ---@type string[]
+                    ---@diagnostic disable-next-line: assign-type-mismatch
+                    local patterns = type(definition.file_pattern) == "table" and definition.file_pattern
+                        or { definition.file_pattern }
+                    for _, pattern in ipairs(patterns) do
+                        local lua_pattern = M.glob_to_pattern(pattern)
+                        if file_name:match(lua_pattern) then
+                            applicable = true
+                            break
+                        end
                     end
+                else
+                    applicable = M.is_extension_a_match(file_extension, definition.ft)
                 end
-            else
-                applicable = M.is_extension_a_match(file_extension, definition.ft)
-            end
 
-            if applicable then
-                local cd = definition.cd and file_directory or vim.fn.getcwd()
+                if applicable then
+                    local cd = definition.cd and file_directory or vim.fn.getcwd()
 
-                ---@type Launcher.File
-                local args = {
-                    path_relative = file_path_relative,
-                    path_relative_sq = M.wrap_sq(file_path_relative),
-                    path_relative_dq = M.wrap_dq(file_path_relative),
-                    path_absolute = file_path_absolute,
-                    path_absolute_sq = M.wrap_sq(file_path_absolute),
-                    path_absolute_dq = M.wrap_dq(file_path_absolute),
-                    directory = file_directory,
-                    directory_sq = M.wrap_sq(file_directory),
-                    directory_dq = M.wrap_dq(file_directory),
-                    extension = file_extension,
-                    name = file_name,
-                    name_sq = M.wrap_sq(file_name),
-                    name_dq = M.wrap_dq(file_name),
-                    name_without_extension = file_name_without_extension,
-                    name_without_extension_sq = M.wrap_sq(file_name_without_extension),
-                    name_without_extension_dq = M.wrap_dq(file_name_without_extension),
-                }
+                    ---@type Launcher.File
+                    local args = {
+                        path_relative = file_path_relative,
+                        path_relative_sq = M.wrap_sq(file_path_relative),
+                        path_relative_dq = M.wrap_dq(file_path_relative),
+                        path_absolute = file_path_absolute,
+                        path_absolute_sq = M.wrap_sq(file_path_absolute),
+                        path_absolute_dq = M.wrap_dq(file_path_absolute),
+                        directory = file_directory,
+                        directory_sq = M.wrap_sq(file_directory),
+                        directory_dq = M.wrap_dq(file_directory),
+                        extension = file_extension,
+                        name = file_name,
+                        name_sq = M.wrap_sq(file_name),
+                        name_dq = M.wrap_dq(file_name),
+                        name_without_extension = file_name_without_extension,
+                        name_without_extension_sq = M.wrap_sq(file_name_without_extension),
+                        name_without_extension_dq = M.wrap_dq(file_name_without_extension),
+                    }
 
-                if type(definition.commands) == "function" then
-                    local commands = definition.commands(args)
-                    for command_name, command in pairs(commands) do
-                        ---@type Launcher.Command
-                        local cmd = {
-                            display = definition.icon .. command_name,
-                            command = command,
-                            cd = cd,
-                            close_on_success = close_on_success,
-                        }
-                        table.insert(command_entries, cmd)
-                    end
-                elseif type(definition.commands) == "table" then
-                    ---@diagnostic disable-next-line: param-type-mismatch
-                    for command_name, command in pairs(definition.commands) do
-                        if type(command) == "function" then
-                            if definition.lua_only then
-                                ---@type Launcher.Command
-                                local cmd = {
-                                    display = definition.icon .. command_name,
-                                    command = command,
-                                    cd = cd,
-                                    args = args,
-                                    close_on_success = close_on_success,
-                                }
-                                table.insert(command_entries, cmd)
-                            else
-                                local result = command(args)
-                                ---@type Launcher.Command
-                                local cmd = {
-                                    display = definition.icon .. command_name,
-                                    command = result,
-                                    cd = cd,
-                                    close_on_success = close_on_success,
-                                }
-                                table.insert(command_entries, cmd)
-                            end
-                        elseif type(command) == "string" then
+                    if type(definition.commands) == "function" then
+                        local commands = definition.commands(args)
+                        for command_name, command in pairs(commands) do
                             ---@type Launcher.Command
                             local cmd = {
                                 display = definition.icon .. command_name,
@@ -460,15 +426,51 @@ function M.select_command(file_path_relative, modules, opts)
                                 close_on_success = close_on_success,
                             }
                             table.insert(command_entries, cmd)
-                        else
-                            error(
-                                "Expected a function or string in module index '"
-                                    .. module_idx
-                                    .. "' for command '"
-                                    .. command_name
-                                    .. "', but got "
-                                    .. type(command)
-                            )
+                        end
+                    elseif type(definition.commands) == "table" then
+                        ---@diagnostic disable-next-line: param-type-mismatch
+                        for command_name, command in pairs(definition.commands) do
+                            if type(command) == "function" then
+                                if definition.lua_only then
+                                    ---@type Launcher.Command
+                                    local cmd = {
+                                        display = definition.icon .. command_name,
+                                        command = command,
+                                        cd = cd,
+                                        args = args,
+                                        close_on_success = close_on_success,
+                                    }
+                                    table.insert(command_entries, cmd)
+                                else
+                                    local result = command(args)
+                                    ---@type Launcher.Command
+                                    local cmd = {
+                                        display = definition.icon .. command_name,
+                                        command = result,
+                                        cd = cd,
+                                        close_on_success = close_on_success,
+                                    }
+                                    table.insert(command_entries, cmd)
+                                end
+                            elseif type(command) == "string" then
+                                ---@type Launcher.Command
+                                local cmd = {
+                                    display = definition.icon .. command_name,
+                                    command = command,
+                                    cd = cd,
+                                    close_on_success = close_on_success,
+                                }
+                                table.insert(command_entries, cmd)
+                            else
+                                error(
+                                    "Expected a function or string in module index '"
+                                        .. module_idx
+                                        .. "' for command '"
+                                        .. command_name
+                                        .. "', but got "
+                                        .. type(command)
+                                )
+                            end
                         end
                     end
                 end

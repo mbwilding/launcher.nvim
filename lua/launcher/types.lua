@@ -31,6 +31,7 @@
 ---@field file_pattern? string File pattern that filters the commands to specific files
 ---@field commands table<string, (string | fun(file: Launcher.File): string|nil)>|fun(file: Launcher.File): table<string, string> Commands, mapped by name to a string or a function, can also take a function that produces a table of name/command
 ---@field close_on_success? boolean Closes the command split if it's a success
+---@field required_exe? string The executable that is required, if not specified, it will always show
 
 --- Module Definitions
 ---@alias Launcher.Definitions Launcher.Definition[]
@@ -38,7 +39,7 @@
 --- Module
 ---@class Launcher.Module
 ---@field definitions Launcher.Definitions
----@field required_exe? string
+---@field required_exe? string The executable that is required, if not specified, it will always show
 ---@field register_icon? fun() Function to register the icon
 
 --- Module Map
