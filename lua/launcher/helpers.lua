@@ -389,49 +389,30 @@ function M.select_command(file_path_relative, modules, opts)
 
             if applicable then
                 local cd = definition.cd and file_directory or vim.fn.getcwd()
-                for command_name, command in pairs(definition.commands) do
-                    if type(command) == "function" then
-                        ---@type Launcher.File
-                        local args = {
-                            path_relative = file_path_relative,
-                            path_relative_sq = M.wrap_sq(file_path_relative),
-                            path_relative_dq = M.wrap_dq(file_path_relative),
-                            path_absolute = file_path_absolute,
-                            path_absolute_sq = M.wrap_sq(file_path_absolute),
-                            path_absolute_dq = M.wrap_dq(file_path_absolute),
-                            directory = file_directory,
-                            directory_sq = M.wrap_sq(file_directory),
-                            directory_dq = M.wrap_dq(file_directory),
-                            extension = file_extension,
-                            name = file_name,
-                            name_sq = M.wrap_sq(file_name),
-                            name_dq = M.wrap_dq(file_name),
-                            name_without_extension = file_name_without_extension,
-                            name_without_extension_sq = M.wrap_sq(file_name_without_extension),
-                            name_without_extension_dq = M.wrap_dq(file_name_without_extension),
-                        }
-                        if definition.lua_only then
-                            ---@type Launcher.Command
-                            local cmd = {
-                                display = definition.icon .. command_name,
-                                command = command,
-                                cd = cd,
-                                args = args,
-                                close_on_success = close_on_success,
-                            }
-                            table.insert(command_entries, cmd)
-                        else
-                            local result = command(args)
-                            ---@type Launcher.Command
-                            local cmd = {
-                                display = definition.icon .. command_name,
-                                command = result,
-                                cd = cd,
-                                close_on_success = close_on_success,
-                            }
-                            table.insert(command_entries, cmd)
-                        end
-                    elseif type(command) == "string" then
+
+                ---@type Launcher.File
+                local args = {
+                    path_relative = file_path_relative,
+                    path_relative_sq = M.wrap_sq(file_path_relative),
+                    path_relative_dq = M.wrap_dq(file_path_relative),
+                    path_absolute = file_path_absolute,
+                    path_absolute_sq = M.wrap_sq(file_path_absolute),
+                    path_absolute_dq = M.wrap_dq(file_path_absolute),
+                    directory = file_directory,
+                    directory_sq = M.wrap_sq(file_directory),
+                    directory_dq = M.wrap_dq(file_directory),
+                    extension = file_extension,
+                    name = file_name,
+                    name_sq = M.wrap_sq(file_name),
+                    name_dq = M.wrap_dq(file_name),
+                    name_without_extension = file_name_without_extension,
+                    name_without_extension_sq = M.wrap_sq(file_name_without_extension),
+                    name_without_extension_dq = M.wrap_dq(file_name_without_extension),
+                }
+
+                if type(definition.commands) == "function" then
+                    local commands = definition.commands(args)
+                    for command_name, command in pairs(commands) do
                         ---@type Launcher.Command
                         local cmd = {
                             display = definition.icon .. command_name,
@@ -440,15 +421,51 @@ function M.select_command(file_path_relative, modules, opts)
                             close_on_success = close_on_success,
                         }
                         table.insert(command_entries, cmd)
-                    else
-                        error(
-                            "Expected a function or string in module index '"
-                                .. module_idx
-                                .. "' for command '"
-                                .. command_name
-                                .. "', but got "
-                                .. type(command)
-                        )
+                    end
+                elseif type(definition.commands) == "table" then
+                    ---@diagnostic disable-next-line: param-type-mismatch
+                    for command_name, command in pairs(definition.commands) do
+                        if type(command) == "function" then
+                            if definition.lua_only then
+                                ---@type Launcher.Command
+                                local cmd = {
+                                    display = definition.icon .. command_name,
+                                    command = command,
+                                    cd = cd,
+                                    args = args,
+                                    close_on_success = close_on_success,
+                                }
+                                table.insert(command_entries, cmd)
+                            else
+                                local result = command(args)
+                                ---@type Launcher.Command
+                                local cmd = {
+                                    display = definition.icon .. command_name,
+                                    command = result,
+                                    cd = cd,
+                                    close_on_success = close_on_success,
+                                }
+                                table.insert(command_entries, cmd)
+                            end
+                        elseif type(command) == "string" then
+                            ---@type Launcher.Command
+                            local cmd = {
+                                display = definition.icon .. command_name,
+                                command = command,
+                                cd = cd,
+                                close_on_success = close_on_success,
+                            }
+                            table.insert(command_entries, cmd)
+                        else
+                            error(
+                                "Expected a function or string in module index '"
+                                    .. module_idx
+                                    .. "' for command '"
+                                    .. command_name
+                                    .. "', but got "
+                                    .. type(command)
+                            )
+                        end
                     end
                 end
             end
