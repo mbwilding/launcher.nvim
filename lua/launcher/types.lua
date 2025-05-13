@@ -38,6 +38,7 @@
 --- Module
 ---@class Launcher.Module
 ---@field definitions Launcher.Definitions
+---@field required_exe? string
 ---@field register_icon? fun() Function to register the icon
 
 --- Module Map

@@ -3,6 +3,7 @@ local ft = "json"
 
 ---@type Launcher.Module
 local M = {
+    required_exe = "bun",
     definitions = {
         -- Generic
         {
