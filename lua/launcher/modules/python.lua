@@ -1,6 +1,8 @@
+local exe = "python3"
+
 ---@type Launcher.Module
 local M = {
-    required_exe = "python3",
+    required_exe = exe,
     definitions = {
         {
             icon = " ",
@@ -8,7 +10,7 @@ local M = {
             cd = true,
             commands = {
                 run = function(file)
-                    return "python3 " .. file.path_absolute_dq
+                    return exe .. " " .. file.path_absolute_dq
                 end,
             },
         },

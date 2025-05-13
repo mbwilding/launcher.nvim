@@ -1,14 +1,17 @@
+local ft = "go"
+local exe = ft
+
 ---@type Launcher.Module
 local M = {
-    required_exe = "go",
+    required_exe = exe,
     definitions = {
         {
             icon = " ",
-            ft = "go",
+            ft = ft,
             cd = true,
             commands = {
                 run = function(file)
-                    return "go run " .. file.path_absolute_dq
+                    return exe .. " run " .. file.path_absolute_dq
                 end,
             },
         },

@@ -1,6 +1,8 @@
+local exe = "pwsh"
+
 ---@type Launcher.Module
 local M = {
-    required_exe = "pwsh",
+    required_exe = exe,
     definitions = {
         {
             icon = "󰨊 ",
@@ -8,7 +10,7 @@ local M = {
             cd = true,
             commands = {
                 run = function(file)
-                    return "pwsh " .. file.path_absolute_dq
+                    return exe .. " " .. file.path_absolute_dq
                 end,
             },
         },

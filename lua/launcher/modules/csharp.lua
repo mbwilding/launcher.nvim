@@ -1,19 +1,20 @@
 local icon = "󰌛 "
+local exe = "dotnet"
 
 ---@type Launcher.Module
 local M = {
-    required_exe = "dotnet",
+    required_exe = exe,
     definitions = {
         {
             icon = icon,
             ft = "sln",
             cd = true,
             commands = {
-                run = "dotnet run --interactive --no-restore --no-build",
-                build = "dotnet build --interactive --no-restore",
-                restore = "dotnet restore --interactive",
-                watch = "dotnet watch --interactive",
-                ["watch-non-interactive"] = "dotnet watch --interactive --non-interactive",
+                run = exe .. " run --interactive --no-restore --no-build",
+                build = exe .. " build --interactive --no-restore",
+                restore = exe .. " restore --interactive",
+                watch = exe .. " watch --interactive",
+                ["watch-non-interactive"] = exe .. " watch --interactive --non-interactive",
             },
         },
         {
@@ -21,13 +22,13 @@ local M = {
             ft = "csproj",
             commands = {
                 run = function(file)
-                    return "dotnet run --interactive --project " .. file.path_absolute_dq
+                    return exe .. " run --interactive --project " .. file.path_absolute_dq
                 end,
                 build = function(file)
-                    return "dotnet build --interactive --project " .. file.path_absolute_dq
+                    return exe .. " build --interactive --project " .. file.path_absolute_dq
                 end,
                 restore = function(file)
-                    return "dotnet restore --interactive " .. file.path_absolute_dq
+                    return exe .. " restore --interactive " .. file.path_absolute_dq
                 end,
             },
         },

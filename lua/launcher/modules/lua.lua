@@ -1,5 +1,6 @@
 local icon = " "
 local ft = "lua"
+local exe = ft
 
 ---@type Launcher.Module
 local M = {
@@ -7,20 +8,20 @@ local M = {
         {
             icon = icon,
             ft = ft,
-            required_exe = "stylua",
+            required_exe = exe,
             commands = {
-                stylua = function(file)
-                    return "stylua " .. file.path_absolute_dq
+                run = function(file)
+                    return exe .. " " .. file.path_absolute_dq
                 end,
             },
         },
         {
             icon = icon,
             ft = ft,
-            required_exe = "lua",
+            required_exe = "stylua",
             commands = {
-                run = function(file)
-                    return "lua " .. file.path_absolute_dq
+                stylua = function(file)
+                    return "stylua " .. file.path_absolute_dq
                 end,
             },
         },

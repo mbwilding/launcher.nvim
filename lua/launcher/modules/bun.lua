@@ -1,9 +1,10 @@
 local icon = " "
 local ft = "json"
+local exe = "bun"
 
 ---@type Launcher.Module
 local M = {
-    required_exe = "bun",
+    required_exe = exe,
     definitions = {
         -- Generic
         {
@@ -13,11 +14,11 @@ local M = {
             cd = true,
             close_on_success = false,
             commands = {
-                install = "bun install",
-                ["install frozen"] = "bun install --frozen-lockfile",
-                test = "bun test",
-                update = "bun update",
-                publish = "bun publish",
+                install = exe .. " install",
+                ["install frozen"] = exe .. " install --frozen-lockfile",
+                test = exe .. " test",
+                update = exe .. " update",
+                publish = exe .. " publish",
             },
         },
         -- Scripts
@@ -45,7 +46,7 @@ local M = {
 
                 if package_data.scripts and type(package_data.scripts) == "table" then
                     for script_name, _ in pairs(package_data.scripts) do
-                        scripts["script: " .. script_name] = "bun run " .. script_name
+                        scripts["script: " .. script_name] = exe .. " run " .. script_name
                     end
                 end
 
