@@ -1,9 +1,28 @@
+local icon = " "
+local ft = "json"
+
 ---@type Launcher.Module
 local M = {
     definitions = {
+        -- Generic
         {
-            icon = " ",
-            ft = "json",
+            icon = icon,
+            ft = ft,
+            file_pattern = "package.json",
+            cd = true,
+            close_on_success = false,
+            commands = {
+                install = "bun install",
+                ["install frozen"] = "bun install --frozen-lockfile",
+                test = "bun test",
+                update = "bun update",
+                publish = "bun publish",
+            },
+        },
+        -- Scripts
+        {
+            icon = icon,
+            ft = ft,
             file_pattern = "package.json",
             cd = true,
             close_on_success = false,
