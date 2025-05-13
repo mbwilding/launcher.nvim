@@ -1,17 +1,13 @@
-local icon = " "
-local ft = "json"
-
 ---@type Launcher.Module
 local M = {
     definitions = {
         {
-            icon = icon,
-            ft = ft,
+            icon = " ",
+            ft = "json",
             file_pattern = "package.json",
             cd = true,
             close_on_success = false,
             commands = function(file)
-                local prefix = "bun run "
                 local scripts = {}
 
                 local f = io.open(file.path_absolute, "rb")
@@ -29,7 +25,7 @@ local M = {
 
                 if package_data.scripts and type(package_data.scripts) == "table" then
                     for script_name, _ in pairs(package_data.scripts) do
-                        scripts[script_name] = prefix .. script_name
+                        scripts[script_name] = "bun run " .. script_name
                     end
                 end
 
