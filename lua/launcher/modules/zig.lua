@@ -3,6 +3,7 @@ local ft = "zig"
 
 ---@type Launcher.Module
 local M = {
+    required_exe = "zig",
     definitions = {
         {
             icon = icon,

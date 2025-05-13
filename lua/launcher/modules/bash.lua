@@ -1,5 +1,6 @@
 ---@type Launcher.Module
 local M = {
+    required_exe = "bash",
     definitions = {
         {
             icon = " ",

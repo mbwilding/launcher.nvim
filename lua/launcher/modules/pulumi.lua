@@ -20,6 +20,7 @@ end
 
 ---@type Launcher.Module
 local M = {
+    required_exe = "pulumi",
     definitions = {
         {
             icon = icon,

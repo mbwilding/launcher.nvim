@@ -2,6 +2,7 @@ local icon = "󰌛 "
 
 ---@type Launcher.Module
 local M = {
+    required_exe = "dotnet",
     definitions = {
         {
             icon = icon,
