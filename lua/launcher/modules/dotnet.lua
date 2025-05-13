@@ -10,11 +10,11 @@ local M = {
             ft = "sln",
             cd = true,
             commands = {
-                run = exe .. " run --interactive --no-restore --no-build",
-                build = exe .. " build --interactive --no-restore",
+                run = exe .. " run --interactive",
+                build = exe .. " build --interactive",
                 restore = exe .. " restore --interactive",
                 watch = exe .. " watch --interactive",
-                ["watch-non-interactive"] = exe .. " watch --interactive --non-interactive",
+                ["watch non-interactive"] = exe .. " watch --interactive --non-interactive",
             },
         },
         {
