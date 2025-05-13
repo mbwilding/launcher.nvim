@@ -25,7 +25,7 @@ local M = {
 
                 if package_data.scripts and type(package_data.scripts) == "table" then
                     for script_name, _ in pairs(package_data.scripts) do
-                        scripts[script_name] = "bun run " .. script_name
+                        scripts["script: " .. script_name] = "bun run " .. script_name
                     end
                 end
 
