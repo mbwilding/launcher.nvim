@@ -5,9 +5,9 @@ local ft = "uproject"
 local function call_command(cmd)
     ---@param file Launcher.File
     return function(file)
-        local ok, unreal_commands = pcall(require, "unrealengine.commands")
+        local ok, unreal = pcall(require, "unrealengine.commands")
         if ok then
-            unreal_commands[cmd]({
+            unreal[cmd]({
                 uproject_path = file.path_absolute,
             })
         else
