@@ -29,10 +29,6 @@ local M = {
             close_on_success = false,
             commands = {
                 install = call_command_root("install"),
-                up = call_command_root("up"),
-                ["up skip"] = call_command_root("up --skip-preview"),
-                preview = call_command_root("preview"),
-                version = call_command_root("version"),
             },
         },
         {
@@ -42,9 +38,11 @@ local M = {
             cd = true,
             close_on_success = false,
             commands = {
+                preview = call_command_stack("preview"),
                 up = call_command_stack("up"),
                 ["up skip"] = call_command_stack("up --skip-preview"),
-                preview = call_command_stack("preview"),
+                refresh = call_command_stack("refresh"),
+                ["refresh skip"] = call_command_stack("refresh --skip-preview"),
             },
         },
     },
