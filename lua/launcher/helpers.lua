@@ -105,13 +105,17 @@ function M.process_module_directory(directory, modules)
     for _, file in ipairs(files) do
         ---@type Launcher.Module
         local lua_module = dofile(file)
-        if lua_module.register_icon and type(lua_module.register_icon) == "function" then
-            lua_module.register_icon()
-        end
-        ---@type string
-        local module_name = file:match("([^/\\]+)%.lua$")
-        if module_name and lua_module.definitions then
-            modules[module_name] = lua_module
+
+        if not lua_module.required_exe or (vim.fn.executable(lua_module.required_exe) == 1) then
+            if lua_module.register_icon and type(lua_module.register_icon) == "function" then
+                lua_module.register_icon()
+            end
+
+            ---@type string
+            local module_name = file:match("([^/\\]+)%.lua$")
+            if module_name and lua_module.definitions then
+                modules[module_name] = lua_module
+            end
         end
     end
 end
