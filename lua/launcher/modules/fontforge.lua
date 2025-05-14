@@ -16,7 +16,7 @@ local M = {
             ft = ft,
             commands = {
                 run = function(file)
-                    return exe .. " " .. file.path_absolute_dq
+                    return exe .. " -nosplash -quiet" .. file.path_absolute_dq
                 end,
             },
         },
