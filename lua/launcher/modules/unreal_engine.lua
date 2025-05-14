@@ -18,12 +18,11 @@ end
 
 ---@type Launcher.Module
 local M = {
-    register_icon = function()
-        local ok, unreal_helpers = pcall(require, "unrealengine.helpers")
-        if ok then
-            unreal_helpers.register_icon()
-        end
-    end,
+    register_icon = {
+        name = "UnrealEngine",
+        extension = ft,
+        icon = icon,
+    },
     definitions = {
         {
             icon = icon,

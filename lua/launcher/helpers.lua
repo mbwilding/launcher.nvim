@@ -48,6 +48,26 @@ function M.save_state()
     end
 end
 
+--- Registers an icon
+---@param reg Launcher.RegisterIcon
+M.register_icon = function(reg)
+    local ok, devicons = pcall(require, "nvim-web-devicons")
+    if ok then
+        local icons = (devicons.get_icons and devicons.get_icons()) or devicons.icons or {}
+        if icons[reg.extension] then
+            return
+        end
+
+        devicons.set_icon({
+            [reg.extension] = {
+                name = reg.name,
+                icon = reg.icon,
+                color = vim.o.background == "dark" and "#ffffff" or "#000000",
+            },
+        })
+    end
+end
+
 --- Execute command
 ---@param selected Launcher.Command
 ---@param opts Launcher.Opts
@@ -107,8 +127,14 @@ function M.process_module_directory(directory, modules)
         local lua_module = dofile(file)
 
         if not lua_module.required_exe or (vim.fn.executable(lua_module.required_exe) == 1) then
-            if lua_module.register_icon and type(lua_module.register_icon) == "function" then
-                lua_module.register_icon()
+            if lua_module.register_icon and type(lua_module.register_icon) == "table" then
+                if vim.islist(lua_module.register_icon) then
+                    for _, reg in ipairs(lua_module.register_icon) do
+                        M.register_icon(reg)
+                    end
+                else
+                    M.register_icon(lua_module.register_icon)
+                end
             end
 
             ---@type string

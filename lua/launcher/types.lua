@@ -36,11 +36,17 @@
 --- Module Definitions
 ---@alias Launcher.Definitions Launcher.Definition[]
 
+--- RegisterIcon
+---@class Launcher.RegisterIcon
+---@field name string      -- The name of the icon
+---@field extension string -- The file extension associated with the icon
+---@field icon string      -- The icon representation (Usually with a space after it)
+
 --- Module
 ---@class Launcher.Module
 ---@field definitions Launcher.Definitions
 ---@field required_exe? string The executable that is required, if not specified, it will always show
----@field register_icon? fun() Function to register the icon
+---@field register_icon? Launcher.RegisterIcon|Launcher.RegisterIcon[]
 
 --- Module Map
 ---@alias Launcher.ModuleMap table<string, Launcher.Module>
