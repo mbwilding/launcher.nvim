@@ -216,6 +216,9 @@ end
 ---@param file_search_params table<string, table<string>>
 ---@return boolean
 function M.should_show_result(file_path, file_search_params)
+    if string.find(file_path, "node_modules") then
+        return false
+    end
     local file_type = vim.fn.fnamemodify(file_path, ":e")
     local patterns = file_search_params[file_type]
 
@@ -256,9 +259,9 @@ function M.select_file(file_search_params, on_choice)
             sort_empty = true,
             filename_bonus = true,
             file_pos = true,
-            cwd_bonus = false,
+            cwd_bonus = true,
             frecency = true,
-            history_bonus = true,
+            history_bonus = false,
         },
         sort = {
             fields = { "score:desc", "#text", "idx" },
