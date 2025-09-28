@@ -1,7 +1,7 @@
 local icon = " "
 local exe = "make"
-local file_pattern = "Makefile"
-local ft = exe
+local ft = "Makefile"
+local file_pattern = ft
 
 ---@type Launcher.Module
 local M = {
@@ -11,7 +11,7 @@ local M = {
         {
             icon = icon,
             ft = ft,
-            file_pattern = file_pattern,
+            file_pattern = ft,
             cd = true,
             close_on_success = false,
             commands = {

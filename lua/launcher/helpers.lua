@@ -216,11 +216,21 @@ end
 ---@param file_search_params table<string, table<string>>
 ---@return boolean
 function M.should_show_result(file_path, file_search_params)
+    -- vim.print(vim.inspect(file_search_params))
     if string.find(file_path, "node_modules") then
         return false
     end
+
     local file_type = vim.fn.fnamemodify(file_path, ":e")
+    if not file_type or file_type == "" then
+        file_type = vim.fn.fnamemodify(file_path, ":t")
+    end
+
     local patterns = file_search_params[file_type]
+
+    if not patterns then
+        return false
+    end
 
     if next(patterns) == nil then
         return true -- No specific patterns, so show the file
@@ -248,10 +258,11 @@ function M.select_file(file_search_params, on_choice)
 
     return Snacks.picker.pick({
         title = "Pick a file",
-        ft = file_types,
+        -- ft = file_types,
         prompt = "File  ",
         source = "files",
         show_empty = false,
+        live = true,
         matcher = {
             fuzzy = true,
             smartcase = true,
@@ -288,6 +299,7 @@ end
 function M.open_command_picker(title, items, format_item, on_choice)
     ---@type snacks.picker.finder.Item[]
     local finder_items = {}
+
     for idx, item in ipairs(items) do
         local text = (format_item or tostring)(item)
         ---@type snacks.picker.finder.Item
@@ -308,6 +320,7 @@ function M.open_command_picker(title, items, format_item, on_choice)
         format = Snacks.picker.format.ui_select(nil, #items),
         title = title,
         show_empty = false,
+        live = false,
         layout = {
             ---@diagnostic disable-next-line: assign-type-mismatch
             preview = false,
@@ -493,11 +506,11 @@ function M.select_command(file_path_relative, modules, opts)
                             else
                                 error(
                                     "Expected a function or string in module index '"
-                                        .. module_idx
-                                        .. "' for command '"
-                                        .. command_name
-                                        .. "', but got "
-                                        .. type(command)
+                                    .. module_idx
+                                    .. "' for command '"
+                                    .. command_name
+                                    .. "', but got "
+                                    .. type(command)
                                 )
                             end
                         end
