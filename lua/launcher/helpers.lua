@@ -216,7 +216,6 @@ end
 ---@param file_search_params table<string, table<string>>
 ---@return boolean
 function M.should_show_result(file_path, file_search_params)
-    -- vim.print(vim.inspect(file_search_params))
     if string.find(file_path, "node_modules") then
         return false
     end
