@@ -18,6 +18,34 @@ local M = {
                 make = exe,
             },
         },
+        -- Specific
+        {
+            icon = icon,
+            ft = ft,
+            file_pattern = file_pattern,
+            cd = true,
+            close_on_success = false,
+            commands = function(file)
+                local targets = {}
+
+                local f = io.open(file.path_absolute, "r")
+                if not f then
+                    return targets
+                end
+
+                for line in f:lines() do
+                    -- Match lines like 'target: deps' but not ones starting with tab, or '.PHONY'
+                    local target = line:match("^([%w_%-%.]+):")
+                    if target and not target:match("^%.") then
+                        -- Avoid duplicates, overwrite to get the last one (which is fine for Makefiles)
+                        targets["make: " .. target] = exe .. " " .. target
+                    end
+                end
+                f:close()
+
+                return targets
+            end,
+        },
     },
 }
 
