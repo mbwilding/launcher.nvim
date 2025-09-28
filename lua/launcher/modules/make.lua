@@ -13,7 +13,7 @@ local M = {
             ft = ft,
             file_pattern = ft,
             cd = true,
-            close_on_success = false,
+            close_on_success = true,
             commands = {
                 make = exe,
             },
@@ -24,7 +24,7 @@ local M = {
             ft = ft,
             file_pattern = file_pattern,
             cd = true,
-            close_on_success = false,
+            close_on_success = true,
             commands = function(file)
                 local targets = {}
 
