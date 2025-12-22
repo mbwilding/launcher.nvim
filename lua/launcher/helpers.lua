@@ -291,19 +291,24 @@ end
 function M.open_command_picker(title, items, format_item, on_choice)
     local completed = false
 
+    local item_formatter = function(item)
+        return (format_item or tostring)(item)
+    end
+
     return Snacks.picker.pick({
         source = "select",
         prompt = "Command  ",
-        format = Snacks.picker.format.ui_select({}),
+        format = Snacks.picker.format.ui_select({
+            format_item = item_formatter,
+        }),
         finder = function()
             ---@type snacks.picker.finder.Item[]
             local finder_items = {}
 
             for idx, item in ipairs(items) do
-                local text = (format_item or tostring)(item)
+                local text = item_formatter(item)
                 ---@type snacks.picker.finder.Item
                 local finder_item = {
-                    formatted = text,
                     text = idx .. " " .. text,
                     item = item,
                     idx = idx,
