@@ -314,10 +314,6 @@ function M.open_command_picker(title, items, format_item, on_choice)
         layout = {
             ---@diagnostic disable-next-line: assign-type-mismatch
             preview = false,
-            layout = {
-                height = 0,
-                width = 0,
-            },
         },
         actions = {
             confirm = function(picker, item)
