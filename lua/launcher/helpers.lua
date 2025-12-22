@@ -255,7 +255,6 @@ function M.select_file(file_search_params, on_choice)
         prompt = "File  ",
         source = "files",
         show_empty = false,
-        live = false,
         matcher = {
             fuzzy = true,
             smartcase = true,
@@ -310,10 +309,8 @@ function M.open_command_picker(title, items, format_item, on_choice)
         source = "select",
         prompt = "Command  ",
         items = finder_items,
-        format = Snacks.picker.format.ui_select(nil, #items),
         title = title,
         show_empty = false,
-        live = false,
         layout = {
             ---@diagnostic disable-next-line: assign-type-mismatch
             preview = false,
