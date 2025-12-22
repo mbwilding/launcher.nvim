@@ -289,26 +289,30 @@ end
 ---@param format_item fun(item: Launcher.Command): string
 ---@param on_choice fun(items?: any, idx: any)
 function M.open_command_picker(title, items, format_item, on_choice)
-    ---@type snacks.picker.finder.Item[]
-    local finder_items = {}
-
-    for idx, item in ipairs(items) do
-        local text = (format_item or tostring)(item)
-        ---@type snacks.picker.finder.Item
-        local finder_item = {
-            formatted = text,
-            text = idx .. " " .. text,
-            item = item,
-            idx = idx,
-        }
-        table.insert(finder_items, finder_item)
-    end
-
     local completed = false
+
     return Snacks.picker.pick({
         source = "select",
         prompt = "Command  ",
-        items = finder_items,
+        format = Snacks.picker.format.ui_select({}),
+        finder = function()
+            ---@type snacks.picker.finder.Item[]
+            local finder_items = {}
+
+            for idx, item in ipairs(items) do
+                local text = (format_item or tostring)(item)
+                ---@type snacks.picker.finder.Item
+                local finder_item = {
+                    formatted = text,
+                    text = idx .. " " .. text,
+                    item = item,
+                    idx = idx,
+                }
+                table.insert(finder_items, finder_item)
+            end
+
+            return finder_items
+        end,
         title = title,
         show_empty = false,
         layout = {
@@ -492,11 +496,11 @@ function M.select_command(file_path_relative, modules, opts)
                             else
                                 error(
                                     "Expected a function or string in module index '"
-                                    .. module_idx
-                                    .. "' for command '"
-                                    .. command_name
-                                    .. "', but got "
-                                    .. type(command)
+                                        .. module_idx
+                                        .. "' for command '"
+                                        .. command_name
+                                        .. "', but got "
+                                        .. type(command)
                                 )
                             end
                         end
