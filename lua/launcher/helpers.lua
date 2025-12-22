@@ -250,18 +250,12 @@ end
 ---@param file_search_params table<string, table<string>>
 ---@param on_choice fun(file: any)
 function M.select_file(file_search_params, on_choice)
-    -- local file_types = {}
-    -- for key, _ in pairs(file_search_params) do
-    --     table.insert(file_types, key)
-    -- end
-
     return Snacks.picker.pick({
         title = "Pick a file",
-        -- ft = file_types,
         prompt = "File  ",
         source = "files",
         show_empty = false,
-        live = true,
+        live = false,
         matcher = {
             fuzzy = true,
             smartcase = true,
