@@ -24,7 +24,7 @@ local M = {
             ft = ft,
             file_pattern = file_pattern,
             cd = true,
-            close_on_success = true,
+            close_on_success = false,
             commands = function(file)
                 local targets = {}
 
