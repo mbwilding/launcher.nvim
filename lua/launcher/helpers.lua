@@ -395,11 +395,8 @@ end
 function M.select_command(file_path_relative, modules, opts)
     opts = vim.tbl_extend("force", M.defaults, opts or {})
 
-    local file_path_absolute = vim.fn.fnamemodify(file_path_relative, ":p")
-    local file_directory = vim.fn.fnamemodify(file_path_absolute, ":h")
-    local file_extension = vim.fn.fnamemodify(file_path_absolute, ":e")
-    local file_name_without_extension = vim.fn.fnamemodify(file_path_absolute, ":t:r")
-    local file_name = vim.fn.fnamemodify(file_path_absolute, ":t")
+    local file_name = vim.fn.fnamemodify(file_path_relative, ":t")
+    local file_extension = vim.fn.fnamemodify(file_path_relative, ":e")
 
     ---@type Launcher.Command[]
     local command_entries = {}
@@ -430,27 +427,75 @@ function M.select_command(file_path_relative, modules, opts)
                 end
 
                 if applicable then
-                    local cd = definition.cd and file_directory or vim.fn.getcwd()
+                    local property_handlers = {
+                        path_relative = function(t)
+                            return rawget(t, "_path_relative")
+                        end,
+                        path_relative_sq = function(t)
+                            return M.wrap_sq(t.path_relative)
+                        end,
+                        path_relative_dq = function(t)
+                            return M.wrap_dq(t.path_relative)
+                        end,
+                        path_absolute = function(t)
+                            return vim.fn.fnamemodify(rawget(t, "_path_relative"), ":p")
+                        end,
+                        path_absolute_sq = function(t)
+                            return M.wrap_sq(t.path_absolute)
+                        end,
+                        path_absolute_dq = function(t)
+                            return M.wrap_dq(t.path_absolute)
+                        end,
+                        directory = function(t)
+                            return vim.fn.fnamemodify(rawget(t, "_path_absolute"), ":h")
+                        end,
+                        directory_sq = function(t)
+                            return M.wrap_sq(t.directory)
+                        end,
+                        directory_dq = function(t)
+                            return M.wrap_dq(t.directory)
+                        end,
+                        extension = function(t)
+                            return rawget(t, "_extension")
+                        end,
+                        name = function(t)
+                            return rawget(t, "_name")
+                        end,
+                        name_sq = function(t)
+                            return M.wrap_sq(t.name)
+                        end,
+                        name_dq = function(t)
+                            return M.wrap_dq(t.name)
+                        end,
+                        name_without_extension = function(t)
+                            return vim.fn.fnamemodify(t.path_absolute, ":t:r")
+                        end,
+                        name_without_extension_sq = function(t)
+                            return M.wrap_sq(t.name_without_extension)
+                        end,
+                        name_without_extension_dq = function(t)
+                            return M.wrap_dq(t.name_without_extension)
+                        end,
+                    }
 
                     ---@type Launcher.File
-                    local args = {
-                        path_relative = file_path_relative,
-                        path_relative_sq = M.wrap_sq(file_path_relative),
-                        path_relative_dq = M.wrap_dq(file_path_relative),
-                        path_absolute = file_path_absolute,
-                        path_absolute_sq = M.wrap_sq(file_path_absolute),
-                        path_absolute_dq = M.wrap_dq(file_path_absolute),
-                        directory = file_directory,
-                        directory_sq = M.wrap_sq(file_directory),
-                        directory_dq = M.wrap_dq(file_directory),
-                        extension = file_extension,
-                        name = file_name,
-                        name_sq = M.wrap_sq(file_name),
-                        name_dq = M.wrap_dq(file_name),
-                        name_without_extension = file_name_without_extension,
-                        name_without_extension_sq = M.wrap_sq(file_name_without_extension),
-                        name_without_extension_dq = M.wrap_dq(file_name_without_extension),
-                    }
+                    local args = setmetatable({
+                        _path_relative = file_path_relative,
+                        _name = file_name,
+                        _extension = file_extension,
+                    }, {
+                        __index = function(t, k)
+                            local handler = property_handlers[k]
+                            if handler then
+                                local v = handler(t)
+                                rawset(t, k, v)
+                                return v
+                            end
+                            return nil
+                        end,
+                    })
+
+                    local cd = definition.cd and args.directory or vim.fn.getcwd()
 
                     if type(definition.commands) == "function" then
                         local commands = definition.commands(args)
