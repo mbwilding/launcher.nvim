@@ -438,7 +438,7 @@ function M.select_command(file_path_relative, modules, opts)
                             return M.wrap_dq(t.path_relative)
                         end,
                         path_absolute = function(t)
-                            return vim.fn.fnamemodify(rawget(t, "_path_relative"), ":p")
+                            return vim.fn.fnamemodify(t.path_relative, ":p")
                         end,
                         path_absolute_sq = function(t)
                             return M.wrap_sq(t.path_absolute)
@@ -447,7 +447,7 @@ function M.select_command(file_path_relative, modules, opts)
                             return M.wrap_dq(t.path_absolute)
                         end,
                         directory = function(t)
-                            return vim.fn.fnamemodify(rawget(t, "_path_absolute"), ":h")
+                            return vim.fn.fnamemodify(t.path_absolute, ":h")
                         end,
                         directory_sq = function(t)
                             return M.wrap_sq(t.directory)
